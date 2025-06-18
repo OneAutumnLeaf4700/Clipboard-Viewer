@@ -51,3 +51,10 @@ This commit resolves several critical issue...
 2025-06-18 18:38:29,489 - ClipboardMonitor - INFO - Starting clipboard monitoring
 2025-06-18 18:38:30,521 - HistoryManager - INFO - Added new text item to history
 2025-06-18 18:38:30,521 - ClipboardMonitor - INFO - New clipboard content (text): hmm for some reason despite me searching for the text i have copied previously on the clipboard, it ...
+2025-06-18 18:43:34,173 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 18:43:34,204 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 18:43:34,266 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 18:43:35,268 - HistoryManager - INFO - Added new text item to history
+2025-06-18 18:43:35,268 - ClipboardMonitor - INFO - New clipboard content (text):  path specified.
+qt.svg: Cannot open file 'C:/Programming/Clipboard-Viewer/assets/icons/text_icon.s...
+2025-06-18 18:44:42,927 - HistoryManager - INFO - Cleared history (keep_favorites=True)
