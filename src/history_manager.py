@@ -389,6 +389,70 @@ class HistoryManager(QObject):
         self.auto_cleanup_days = days
         self.cleanup_old_items()
     
+    def search_items(self, query, limit=None):
+        """Search for clipboard items containing the query string."""
+        items = []
+        
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            # Set default limit if not specified
+            if limit is None:
+                limit = self.max_history_items
+            
+            # Get all text items first
+            cursor.execute('''
+                SELECT id, timestamp, data_type, content, favorite
+                FROM clipboard_items
+                WHERE data_type = 'text'
+                ORDER BY timestamp DESC
+                LIMIT ?
+            ''', (limit,))
+            
+            rows = cursor.fetchall()
+            
+            # Filter items in Python to handle serialized content
+            query = query.lower()  # Make search case-insensitive
+            for row in rows:
+                item_id, timestamp_str, data_type, serialized_content, favorite = row
+                
+                try:
+                    # Deserialize content
+                    content = pickle.loads(serialized_content)
+                    
+                    # Skip if content is not a string
+                    if not isinstance(content, str):
+                        continue
+                    
+                    # Check if content contains the search query
+                    if query in content.lower():
+                        # Convert timestamp string to datetime
+                        timestamp = datetime.fromisoformat(timestamp_str)
+                        
+                        # Create ClipboardItem
+                        from clipboard_monitor import ClipboardItem
+                        item = ClipboardItem(data_type, content, timestamp)
+                        item.favorite = bool(favorite)
+                        item.id = item_id  # Add database ID for reference
+                        
+                        items.append(item)
+                        
+                        # Break if we've reached the limit
+                        if len(items) >= limit:
+                            break
+                            
+                except Exception as e:
+                    self.logger.error(f"Error processing item {item_id}: {e}")
+                    continue
+            
+            conn.close()
+            
+        except Exception as e:
+            self.logger.error(f"Error searching items in database: {e}")
+        
+        return items
+    
     def export_history(self, file_path, format_type="json"):
         """Export clipboard history to a file in the specified format."""
         items = self.get_all_items()

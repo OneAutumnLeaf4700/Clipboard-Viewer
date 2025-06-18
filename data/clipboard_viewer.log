@@ -25,3 +25,36 @@ This commit resolves several critical issue...
 2025-06-18 16:34:44,885 - HistoryManager - INFO - Added new text item to history
 2025-06-18 16:34:44,886 - ClipboardMonitor - INFO - New clipboard content (text): # Fix circular import and integrate PyQt6 GUI components
 This commit resolves several critical issue...
+2025-06-18 18:13:56,863 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 18:13:56,890 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 18:13:56,933 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 18:13:57,936 - HistoryManager - INFO - Added new text item to history
+2025-06-18 18:13:57,937 - ClipboardMonitor - INFO - New clipboard content (text): test...
+2025-06-18 18:18:28,214 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 18:18:28,252 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 18:18:28,310 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 18:18:29,344 - HistoryManager - INFO - Added new text item to history
+2025-06-18 18:18:29,345 - ClipboardMonitor - INFO - New clipboard content (text): test...
+2025-06-18 18:18:58,815 - HistoryManager - INFO - Cleared history (keep_favorites=True)
+2025-06-18 18:24:19,326 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 18:24:19,369 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 18:24:19,442 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 18:24:20,468 - HistoryManager - INFO - Added new text item to history
+2025-06-18 18:24:20,468 - ClipboardMonitor - INFO - New clipboard content (text): Lets implement feature 1 the search bar frokm the potential feature enchancements u just showed me. ...
+2025-06-18 18:25:32,324 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 18:25:32,364 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 18:25:32,445 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 18:25:33,456 - HistoryManager - INFO - Added new text item to history
+2025-06-18 18:25:33,456 - ClipboardMonitor - INFO - New clipboard content (text): Lets implement feature 1 the search bar frokm the potential feature enchancements u just showed me. ...
+2025-06-18 18:38:29,385 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 18:38:29,421 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 18:38:29,489 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 18:38:30,521 - HistoryManager - INFO - Added new text item to history
+2025-06-18 18:38:30,521 - ClipboardMonitor - INFO - New clipboard content (text): hmm for some reason despite me searching for the text i have copied previously on the clipboard, it ...
+2025-06-18 18:43:34,173 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 18:43:34,204 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 18:43:34,266 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 18:43:35,268 - HistoryManager - INFO - Added new text item to history
+2025-06-18 18:43:35,268 - ClipboardMonitor - INFO - New clipboard content (text):  path specified.
+qt.svg: Cannot open file 'C:/Programming/Clipboard-Viewer/assets/icons/text_icon.s...
+2025-06-18 18:44:42,927 - HistoryManager - INFO - Cleared history (keep_favorites=True)
