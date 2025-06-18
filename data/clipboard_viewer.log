@@ -1,0 +1,27 @@
+2025-06-18 16:27:54,444 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 16:27:54,595 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 16:29:52,398 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 16:29:52,425 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 16:31:39,833 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 16:31:39,868 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 16:32:24,073 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 16:32:24,098 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 16:32:24,138 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 16:33:02,118 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 16:33:02,148 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 16:33:02,188 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 16:33:03,307 - HistoryManager - INFO - Added new text item to history
+2025-06-18 16:33:03,307 - ClipboardMonitor - INFO - New clipboard content (text): turtle slight anger screen upon eight outer casual normal lesson media glimpse soon defy cage freque...
+2025-06-18 16:33:16,077 - HistoryManager - INFO - Cleared history (keep_favorites=True)
+2025-06-18 16:34:35,826 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 16:34:35,855 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 16:34:35,894 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 16:34:36,912 - HistoryManager - INFO - Added new text item to history
+2025-06-18 16:34:36,912 - ClipboardMonitor - INFO - New clipboard content (text): # Fix circular import and integrate PyQt6 GUI components
+This commit resolves several critical issue...
+2025-06-18 16:34:43,795 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 16:34:43,825 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 16:34:43,879 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 16:34:44,885 - HistoryManager - INFO - Added new text item to history
+2025-06-18 16:34:44,886 - ClipboardMonitor - INFO - New clipboard content (text): # Fix circular import and integrate PyQt6 GUI components
+This commit resolves several critical issue...

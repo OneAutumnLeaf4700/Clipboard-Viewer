@@ -1,66 +1,93 @@
-import time
+import sys
+import os
 import logging
-import win32clipboard
-from PIL import ImageGrab
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QSettings
+
+# Import our modules
+from gui.main_window import MainWindow
+from clipboard_monitor import ClipboardMonitor, ClipboardItem
+from history_manager import HistoryManager
+from utils.system_tray import SystemTrayManager
+from utils.hotkeys import HotkeyManager
+from utils.clipboard_utils import get_clipboard_data
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join('data', 'clipboard_viewer.log')),
+        logging.StreamHandler()
+    ]
+)
 
-def get_clipboard_data():
-    """Retrieve the current clipboard content and its type."""
-    win32clipboard.OpenClipboard()
-    try:
-        if win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_UNICODETEXT):
-            # Handle Unicode text data
-            data = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
-            return "text", data
-        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_BITMAP):
-            # Handle image data
-            image = ImageGrab.grabclipboard()
-            return "image", image
-        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_HDROP):
-            # Handle file paths
-            files = win32clipboard.GetClipboardData(win32clipboard.CF_HDROP)
-            return "files", list(files)
-        else:
-            return "unknown", None
-    except Exception as e:
-        logging.error(f"Error retrieving clipboard data: {e}")
-        return "error", None
-    finally:
-        win32clipboard.CloseClipboard()
+logger = logging.getLogger('ClipboardViewer')
+
+# get_clipboard_data function moved to utils.clipboard_utils
 
 def main():
-    logging.info("Clipboard Viewer started.")
+    logger.info("Clipboard Viewer started.")
     
-    clipboard_history = []  # In-memory list to store clipboard history
-    last_clipboard_content = None  # To track the last clipboard content
-
-    try:
-        while True:
-            # Get the current clipboard content and type
-            data_type, current_clipboard_content = get_clipboard_data()
-
-            # Check if the clipboard content has changed
-            if current_clipboard_content != last_clipboard_content:
-                last_clipboard_content = current_clipboard_content
-
-                # Add the new content to the history
-                clipboard_history.append((data_type, current_clipboard_content))
-                logging.info(f"New clipboard content ({data_type}): {str(current_clipboard_content)[:100]}...")
-
-            # Simulate a delay to avoid excessive CPU usage
-            time.sleep(1)
-
-    except KeyboardInterrupt:
-        # Gracefully handle program termination
-        logging.info("Program terminated by user.")
-        logging.info("Clipboard history:")
-        for index, (data_type, content) in enumerate(clipboard_history, start=1):
-            logging.info(f"{index}: ({data_type}) {content}")
-
-    except Exception as e:
-        logging.error(f"An error occurred: {e}")
+    # Create data directory if it doesn't exist
+    os.makedirs('data', exist_ok=True)
+    
+    # Initialize QApplication
+    app = QApplication(sys.argv)
+    app.setApplicationName("Clipboard Viewer")
+    app.setOrganizationName("ClipboardViewer")
+    app.setOrganizationDomain("clipboardviewer.app")
+    
+    # Initialize settings
+    settings = QSettings()
+    
+    # Initialize history manager
+    history_manager = HistoryManager()
+    
+    # Initialize clipboard monitor
+    clipboard_monitor = ClipboardMonitor()
+    
+    # Initialize main window
+    main_window = MainWindow(history_manager, clipboard_monitor)
+    
+    # Initialize system tray
+    system_tray = SystemTrayManager()
+    
+    # Initialize hotkey manager
+    hotkey_manager = HotkeyManager()
+    
+    # Connect signals and slots
+    clipboard_monitor.new_content.connect(history_manager.add_item)
+    
+    # Connect system tray signals
+    system_tray.show_app_requested.connect(main_window.show)
+    system_tray.hide_app_requested.connect(main_window.hide)
+    system_tray.settings_requested.connect(main_window.show_settings)
+    system_tray.clear_history_requested.connect(main_window.clear_history)
+    system_tray.exit_app_requested.connect(app.quit)
+    
+    # Set up hotkeys
+    if settings.value("hotkeys/toggle_window", ""):
+        hotkey_manager.register_hotkey(
+            settings.value("hotkeys/toggle_window"),
+            lambda: main_window.show() if main_window.isHidden() else main_window.hide()
+        )
+    
+    if settings.value("hotkeys/copy_last", ""):
+        hotkey_manager.register_hotkey(
+            settings.value("hotkeys/copy_last"),
+            lambda: main_window.copy_last_item()
+        )
+    
+    # Start monitoring clipboard
+    clipboard_monitor.start_monitoring()
+    
+    # Show main window unless start minimized is enabled
+    if not settings.value("general/start_minimized", False, type=bool):
+        main_window.show()
+    
+    # Execute application
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
     main()
