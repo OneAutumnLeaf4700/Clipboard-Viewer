@@ -58,3 +58,25 @@ This commit resolves several critical issue...
 2025-06-18 18:43:35,268 - ClipboardMonitor - INFO - New clipboard content (text):  path specified.
 qt.svg: Cannot open file 'C:/Programming/Clipboard-Viewer/assets/icons/text_icon.s...
 2025-06-18 18:44:42,927 - HistoryManager - INFO - Cleared history (keep_favorites=True)
+2025-06-18 19:05:05,868 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:05:05,904 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:05:05,951 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:05:06,967 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:05:06,968 - ClipboardMonitor - INFO - New clipboard content (text): Startup with Windows - Option to launch on system startup...
+2025-06-18 19:05:24,292 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:05:24,330 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:05:24,389 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:05:25,393 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:05:25,393 - ClipboardMonitor - INFO - New clipboard content (text): Startup with Windows - Option to launch on system startup...
+2025-06-18 19:06:48,995 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:06:49,030 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:06:49,086 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:06:50,090 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:06:50,090 - ClipboardMonitor - INFO - New clipboard content (text): Startup with Windows - Option to launch on system startup...
+2025-06-18 19:07:52,223 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:07:52,263 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:07:52,325 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:07:53,333 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:07:53,333 - ClipboardMonitor - INFO - New clipboard content (text): unch on system startup...
+Traceback (most recent call last):
+  File "c:\Programming\Clipboard-View...

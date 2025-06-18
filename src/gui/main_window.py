@@ -4,7 +4,7 @@ from datetime import datetime
 from PyQt6.QtWidgets import (QMainWindow, QApplication, QSplitter, QListWidget, 
                             QListWidgetItem, QVBoxLayout, QHBoxLayout, QWidget, 
                             QLabel, QPushButton, QMenu, QSystemTrayIcon, 
-                            QMessageBox, QFrame, QToolBar, QStatusBar, QFileDialog)
+                            QMessageBox, QFrame, QToolBar, QStatusBar, QFileDialog, QDialog)
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QFont, QCursor
 from PyQt6.QtCore import Qt, QSize, pyqtSignal, QTimer
 
@@ -433,8 +433,11 @@ class MainWindow(QMainWindow):
     
     def show_settings(self):
         """Show the settings dialog."""
-        # Placeholder for settings dialog
-        QMessageBox.information(self, "Settings", "Settings dialog would appear here")
+        from gui.settings_dialog import SettingsDialog
+        dialog = SettingsDialog(self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            # Settings were saved
+            self.apply_settings()
     
     def on_search_text_changed(self, text):
         """Handle search text changes and filter the history list."""
