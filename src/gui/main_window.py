@@ -169,6 +169,7 @@ class MainWindow(QMainWindow):
         
         # Initialize clipboard history
         self.clipboard_history = []
+        self.original_clipboard_history = []
         self.last_clipboard_content = None
         
         # Create central widget and layout
@@ -186,12 +187,27 @@ class MainWindow(QMainWindow):
         self.history_header = QLabel("Clipboard History")
         self.history_header.setFont(QFont("Arial", 12, QFont.Weight.Bold))
         
+        # Add search bar
+        self.search_layout = QHBoxLayout()
+        from PyQt6.QtWidgets import QLineEdit
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Search clipboard history...")
+        self.search_input.textChanged.connect(self.on_search_text_changed)
+        
+        self.clear_search_button = QPushButton("Clear")
+        self.clear_search_button.clicked.connect(self.clear_search)
+        self.clear_search_button.setEnabled(False)
+        
+        self.search_layout.addWidget(self.search_input)
+        self.search_layout.addWidget(self.clear_search_button)
+        
         self.history_list = QListWidget()
         self.history_list.setAlternatingRowColors(True)
         self.history_list.currentItemChanged.connect(self.on_item_selected)
         self.history_list.itemDoubleClicked.connect(self.copy_selected_to_clipboard)
         
         self.history_layout.addWidget(self.history_header)
+        self.history_layout.addLayout(self.search_layout)
         self.history_layout.addWidget(self.history_list)
         
         # Create preview widget
@@ -302,6 +318,9 @@ class MainWindow(QMainWindow):
             self.history_list.addItem(list_item)
             self.clipboard_history.append(list_item)
         
+        # Store original items for search filtering
+        self.original_clipboard_history = self.clipboard_history.copy()
+        
         # Update status
         self.status_bar.showMessage(f"Loaded {len(items)} history items")
     
@@ -310,9 +329,19 @@ class MainWindow(QMainWindow):
         # Create new history item
         new_item = ClipboardListItem(item.data_type, item.content, item.timestamp)
         
-        # Add to history list
-        self.history_list.insertItem(0, new_item)  # Add at the top
-        self.clipboard_history.insert(0, new_item)
+        # Check if search is active
+        search_text = self.search_input.text()
+        if search_text and item.data_type == "text" and search_text.lower() in str(item.content).lower():
+            # If search is active and the new item matches the search, add it to the filtered list
+            self.history_list.insertItem(0, new_item)  # Add at the top
+            self.clipboard_history.insert(0, new_item)
+        elif not search_text:
+            # If no search is active, add to the visible list
+            self.history_list.insertItem(0, new_item)  # Add at the top
+            self.clipboard_history.insert(0, new_item)
+        
+        # Always add to the original list
+        self.original_clipboard_history.insert(0, new_item)
         
         # Update status
         self.status_bar.showMessage(f"New clipboard content: {item.data_type}")
@@ -394,6 +423,7 @@ class MainWindow(QMainWindow):
             # Clear UI
             self.history_list.clear()
             self.clipboard_history.clear()
+            self.original_clipboard_history.clear()
             self.preview_widget.clear_preview()
             
             # Reload history (to show favorites if kept)
@@ -405,6 +435,42 @@ class MainWindow(QMainWindow):
         """Show the settings dialog."""
         # Placeholder for settings dialog
         QMessageBox.information(self, "Settings", "Settings dialog would appear here")
+    
+    def on_search_text_changed(self, text):
+        """Handle search text changes and filter the history list."""
+        if text:
+            self.clear_search_button.setEnabled(True)
+            self.filter_history_list(text)
+        else:
+            self.clear_search_button.setEnabled(False)
+            self.load_history()  # Reload all history items
+    
+    def clear_search(self):
+        """Clear the search input and reload all history items."""
+        self.search_input.clear()
+        self.clear_search_button.setEnabled(False)
+        self.load_history()
+    
+    def filter_history_list(self, search_text):
+        """Filter the history list based on the search text."""
+        # Clear current history list
+        self.history_list.clear()
+        self.clipboard_history.clear()
+        
+        # Get filtered items from history manager
+        items = self.history_manager.search_items(search_text, limit=100)
+        
+        # Add items to history list
+        for item in items:
+            # Create list item
+            list_item = ClipboardListItem(item.data_type, item.content, item.timestamp)
+            
+            # Add to history list
+            self.history_list.addItem(list_item)
+            self.clipboard_history.append(list_item)
+        
+        # Update status
+        self.status_bar.showMessage(f"Found {len(items)} items matching '{search_text}'")
     
     def closeEvent(self, event):
         """Handle window close event."""
