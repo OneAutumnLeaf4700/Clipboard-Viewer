@@ -6,11 +6,13 @@ from PyQt6.QtWidgets import (QMainWindow, QApplication, QSplitter, QListWidget,
                             QLabel, QPushButton, QMenu, QSystemTrayIcon, 
                             QMessageBox, QFrame, QToolBar, QStatusBar, QFileDialog, QDialog)
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QFont, QCursor
-from PyQt6.QtCore import Qt, QSize, pyqtSignal, QTimer
+from PyQt6.QtCore import Qt, QSize, pyqtSignal, QTimer, QSettings
 
 # Import the clipboard data retrieval function
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.clipboard_utils import get_clipboard_data
+from gui.preview_widget import PreviewWidget
+from utils.hotkeys import HotkeyManager
 
 class ClipboardListItem(QListWidgetItem):
     """Custom list widget item to store clipboard data and its type."""
@@ -39,122 +41,11 @@ class ClipboardListItem(QListWidgetItem):
             self.setIcon(QIcon("assets/icons/unknown_icon.svg"))  # Placeholder for actual icon path
 
 
-class PreviewWidget(QWidget):
-    """Widget for displaying previews of clipboard content."""
-    
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.layout = QVBoxLayout(self)
-        
-        # Header
-        self.header_label = QLabel("Preview")
-        self.header_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
-        
-        # Content area
-        self.content_frame = QFrame()
-        self.content_frame.setFrameShape(QFrame.Shape.StyledPanel)
-        self.content_layout = QVBoxLayout(self.content_frame)
-        
-        # Content widgets
-        self.text_preview = QLabel()
-        self.text_preview.setWordWrap(True)
-        self.text_preview.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        
-        self.image_preview = QLabel()
-        self.image_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        
-        self.file_preview = QListWidget()
-        
-        # Add widgets to content layout
-        self.content_layout.addWidget(self.text_preview)
-        self.content_layout.addWidget(self.image_preview)
-        self.content_layout.addWidget(self.file_preview)
-        
-        # Action buttons
-        self.button_layout = QHBoxLayout()
-        self.copy_button = QPushButton("Copy to Clipboard")
-        self.save_button = QPushButton("Save As...")
-        self.button_layout.addWidget(self.copy_button)
-        self.button_layout.addWidget(self.save_button)
-        
-        # Add all components to main layout
-        self.layout.addWidget(self.header_label)
-        self.layout.addWidget(self.content_frame)
-        self.layout.addLayout(self.button_layout)
-        
-        # Hide all preview widgets initially
-        self.clear_preview()
-        
-    def clear_preview(self):
-        """Clear and hide all preview widgets."""
-        self.text_preview.setText("")
-        self.text_preview.hide()
-        
-        self.image_preview.clear()
-        self.image_preview.hide()
-        
-        self.file_preview.clear()
-        self.file_preview.hide()
-        
-        self.copy_button.setEnabled(False)
-        self.save_button.setEnabled(False)
-    
-    def show_preview(self, item):
-        """Display preview based on the clipboard item type."""
-        if not item:
-            self.clear_preview()
-            return
-            
-        # Clear previous preview
-        self.clear_preview()
-        
-        # Show appropriate preview based on data type
-        if item.data_type == "text":
-            self.text_preview.setText(item.content)
-            self.text_preview.show()
-            self.copy_button.setEnabled(True)
-            self.save_button.setEnabled(True)
-            
-        elif item.data_type == "image" and item.content:
-            # Convert PIL image to QPixmap
-            if hasattr(item.content, 'save'):
-                # Save to temporary file and load as QPixmap
-                temp_path = "temp_preview.png"
-                item.content.save(temp_path)
-                pixmap = QPixmap(temp_path)
-                
-                # Scale pixmap to fit the preview area while maintaining aspect ratio
-                max_size = QSize(400, 300)
-                scaled_pixmap = pixmap.scaled(max_size, 
-                                             Qt.AspectRatioMode.KeepAspectRatio, 
-                                             Qt.TransformationMode.SmoothTransformation)
-                
-                self.image_preview.setPixmap(scaled_pixmap)
-                self.image_preview.show()
-                self.copy_button.setEnabled(True)
-                self.save_button.setEnabled(True)
-                
-                # Clean up temporary file
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-            
-        elif item.data_type == "files":
-            self.file_preview.clear()
-            for file_path in item.content:
-                self.file_preview.addItem(file_path)
-            self.file_preview.show()
-            self.copy_button.setEnabled(True)
-            self.save_button.setEnabled(False)  # Can't save file paths
-            
-        else:
-            self.text_preview.setText("[No preview available for this content type]")
-            self.text_preview.show()
-            self.copy_button.setEnabled(False)
-            self.save_button.setEnabled(False)
-
-
 class MainWindow(QMainWindow):
     """Main window for the Clipboard Viewer application."""
+    
+    # Signal emitted when settings are changed
+    settings_changed = pyqtSignal()
     
     def __init__(self, history_manager, clipboard_monitor):
         super().__init__()
@@ -171,6 +62,12 @@ class MainWindow(QMainWindow):
         self.clipboard_history = []
         self.original_clipboard_history = []
         self.last_clipboard_content = None
+        
+        # Initialize hotkey manager
+        self.hotkey_manager = HotkeyManager()
+        
+        # Connect settings changed signal
+        self.settings_changed.connect(self.update_hotkeys)
         
         # Create central widget and layout
         self.central_widget = QWidget()
@@ -435,9 +332,7 @@ class MainWindow(QMainWindow):
         """Show the settings dialog."""
         from gui.settings_dialog import SettingsDialog
         dialog = SettingsDialog(self)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            # Settings were saved
-            self.apply_settings()
+        dialog.exec()
     
     def on_search_text_changed(self, text):
         """Handle search text changes and filter the history list."""
@@ -488,3 +383,39 @@ class MainWindow(QMainWindow):
             event.ignore()
         else:
             event.accept()
+    
+    def update_hotkeys(self):
+        """Update hotkeys based on settings."""
+        # Unregister all existing hotkeys
+        self.hotkey_manager.unregister_all_hotkeys()
+        
+        # Get hotkey settings
+        settings = QSettings()
+        settings.beginGroup("Hotkeys")
+        
+        # Register toggle window hotkey
+        toggle_hotkey = settings.value("toggle_window", "Ctrl+Shift+V")
+        self.hotkey_manager.register_hotkey("toggle_window", toggle_hotkey, self.toggle_window_visibility)
+        
+        # Register copy last item hotkey
+        copy_last_hotkey = settings.value("copy_last_item", "Ctrl+Shift+C")
+        self.hotkey_manager.register_hotkey("copy_last_item", copy_last_hotkey, self.copy_last_item)
+        
+        settings.endGroup()
+    
+    def toggle_window_visibility(self):
+        """Toggle the window visibility."""
+        if self.isVisible():
+            self.hide()
+        else:
+            self.show()
+            self.activateWindow()
+    
+    def copy_last_item(self):
+        """Copy the most recent clipboard item back to the clipboard."""
+        if self.history_list.count() > 0:
+            # Get the first item (most recent)
+            item = self.history_list.item(0)
+            if item:
+                self.copy_selected_to_clipboard(item)
+                self.status_bar.showMessage("Last item copied to clipboard")

@@ -2,6 +2,74 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QTabWidget,
                             QLabel, QPushButton, QSpinBox, QCheckBox, QComboBox,
                             QGroupBox, QFormLayout, QLineEdit, QWidget)
 from PyQt6.QtCore import Qt, QSettings
+from PyQt6.QtGui import QKeyEvent
+
+class HotkeyLineEdit(QLineEdit):
+    """Custom QLineEdit for capturing hotkey combinations."""
+    
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setReadOnly(True)
+        self.setPlaceholderText("Press keys to set hotkey")
+        self.current_hotkey = ""
+    
+    def keyPressEvent(self, event: QKeyEvent):
+        """Handle key press events to capture hotkey combinations."""
+        modifiers = []
+        
+        # Check for modifier keys
+        if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            modifiers.append("Ctrl")
+        if event.modifiers() & Qt.KeyboardModifier.AltModifier:
+            modifiers.append("Alt")
+        if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+            modifiers.append("Shift")
+        if event.modifiers() & Qt.KeyboardModifier.MetaModifier:
+            modifiers.append("Win")
+        
+        qt_key = event.key()
+        key_name = None
+        # Handle function keys
+        if Qt.Key.Key_F1 <= qt_key <= Qt.Key.Key_F35:
+            key_name = f"F{qt_key - Qt.Key.Key_F1 + 1}"
+        # Handle arrows and other special keys
+        elif qt_key == Qt.Key.Key_Left:
+            key_name = "Left"
+        elif qt_key == Qt.Key.Key_Right:
+            key_name = "Right"
+        elif qt_key == Qt.Key.Key_Up:
+            key_name = "Up"
+        elif qt_key == Qt.Key.Key_Down:
+            key_name = "Down"
+        elif qt_key == Qt.Key.Key_Delete:
+            key_name = "Delete"
+        elif qt_key == Qt.Key.Key_Insert:
+            key_name = "Insert"
+        elif qt_key == Qt.Key.Key_Home:
+            key_name = "Home"
+        elif qt_key == Qt.Key.Key_End:
+            key_name = "End"
+        elif qt_key == Qt.Key.Key_PageUp:
+            key_name = "PageUp"
+        elif qt_key == Qt.Key.Key_PageDown:
+            key_name = "PageDown"
+        else:
+            # Printable keys
+            try:
+                if 0x20 <= qt_key <= 0x7E:
+                    key_name = chr(qt_key).upper()
+                else:
+                    key_name = event.text().upper()
+            except Exception:
+                key_name = event.text().upper()
+        
+        # Combine modifiers and key
+        if key_name and key_name not in ["Ctrl", "Alt", "Shift", "Win", ""]:
+            modifiers.append(key_name)
+            self.current_hotkey = "+".join(modifiers)
+            self.setText(self.current_hotkey)
+        
+        event.accept()
 
 class SettingsDialog(QDialog):
     """Dialog for managing application settings."""
@@ -133,14 +201,10 @@ class SettingsDialog(QDialog):
         hotkey_group = QGroupBox("Global Hotkeys")
         hotkey_layout = QFormLayout()
         
-        self.toggle_hotkey = QLineEdit()
-        self.toggle_hotkey.setPlaceholderText("Press keys to set hotkey")
-        self.toggle_hotkey.setReadOnly(True)
+        self.toggle_hotkey = HotkeyLineEdit()
         hotkey_layout.addRow("Toggle Window:", self.toggle_hotkey)
         
-        self.copy_last_hotkey = QLineEdit()
-        self.copy_last_hotkey.setPlaceholderText("Press keys to set hotkey")
-        self.copy_last_hotkey.setReadOnly(True)
+        self.copy_last_hotkey = HotkeyLineEdit()
         hotkey_layout.addRow("Copy Last Item:", self.copy_last_hotkey)
         
         hotkey_group.setLayout(hotkey_layout)
