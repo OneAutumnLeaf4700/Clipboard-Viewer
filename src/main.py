@@ -86,6 +86,8 @@ def main():
     if not settings.value("general/start_minimized", False, type=bool):
         main_window.show()
     
+    main_window.show()
+
     # Execute application
     sys.exit(app.exec())
 
