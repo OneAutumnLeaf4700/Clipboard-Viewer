@@ -119,10 +119,12 @@ class SettingsDialog(QDialog):
         self.load_settings()
     
     def add_general_tab(self):
-        """Add the general settings tab (now blank for redesign)."""
+        """Add the general settings tab with a 'Start with Windows' option."""
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        # All widgets removed; blank tab for redesign
+        # Startup section
+        self.auto_start = QCheckBox("Start with Windows")
+        layout.addWidget(self.auto_start)
         layout.addStretch()
         self.tab_widget.addTab(tab, "General")
     
