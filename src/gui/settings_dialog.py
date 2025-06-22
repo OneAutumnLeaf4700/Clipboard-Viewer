@@ -132,15 +132,22 @@ class SettingsDialog(QDialog):
         self.tab_widget.addTab(tab, "General")
     
     def add_appearance_tab(self):
-        """Add the appearance settings tab (now blank for redesign)."""
+        """Add the appearance settings tab with a theme selector."""
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        # All widgets removed; blank tab for redesign
+        # Theme section
+        theme_label = QLabel("Theme:")
+        self.theme_combo = QComboBox()
+        self.theme_combo.addItems(["System", "Light", "Dark"])
+        theme_layout = QHBoxLayout()
+        theme_layout.addWidget(theme_label)
+        theme_layout.addWidget(self.theme_combo)
+        layout.addLayout(theme_layout)
         layout.addStretch()
         self.tab_widget.addTab(tab, "Appearance")
     
     def load_settings(self):
-        """Load settings from registry for 'Start with Windows'."""
+        """Load settings from registry for 'Start with Windows' and from QSettings for theme."""
         # Check if the app is set to run at startup
         try:
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
@@ -152,6 +159,9 @@ class SettingsDialog(QDialog):
             self.auto_start.setChecked(False)
         except Exception:
             self.auto_start.setChecked(False)
+        # Load theme from QSettings
+        theme = self.settings.value("appearance/theme", "System")
+        self.theme_combo.setCurrentText(theme)
     
     def save_settings(self):
         """Save settings and close dialog."""
@@ -159,7 +169,7 @@ class SettingsDialog(QDialog):
         self.accept()
     
     def apply_settings(self):
-        """Apply settings, including Windows startup registration."""
+        """Apply settings, including Windows startup registration and theme selection."""
         # Handle 'Start with Windows' option
         try:
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
@@ -177,6 +187,8 @@ class SettingsDialog(QDialog):
                         pass
         except Exception as e:
             pass  # Optionally, show a warning dialog
+        # Save theme selection
+        self.settings.setValue("appearance/theme", self.theme_combo.currentText())
         # Emit signal to notify main window of settings changes
         if self.parent():
             self.parent().settings_changed.emit()
