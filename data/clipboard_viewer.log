@@ -58,3 +58,149 @@ This commit resolves several critical issue...
 2025-06-18 18:43:35,268 - ClipboardMonitor - INFO - New clipboard content (text):  path specified.
 qt.svg: Cannot open file 'C:/Programming/Clipboard-Viewer/assets/icons/text_icon.s...
 2025-06-18 18:44:42,927 - HistoryManager - INFO - Cleared history (keep_favorites=True)
+2025-06-18 19:05:05,868 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:05:05,904 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:05:05,951 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:05:06,967 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:05:06,968 - ClipboardMonitor - INFO - New clipboard content (text): Startup with Windows - Option to launch on system startup...
+2025-06-18 19:05:24,292 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:05:24,330 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:05:24,389 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:05:25,393 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:05:25,393 - ClipboardMonitor - INFO - New clipboard content (text): Startup with Windows - Option to launch on system startup...
+2025-06-18 19:06:48,995 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:06:49,030 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:06:49,086 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:06:50,090 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:06:50,090 - ClipboardMonitor - INFO - New clipboard content (text): Startup with Windows - Option to launch on system startup...
+2025-06-18 19:07:52,223 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:07:52,263 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:07:52,325 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:07:53,333 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:07:53,333 - ClipboardMonitor - INFO - New clipboard content (text): unch on system startup...
+Traceback (most recent call last):
+  File "c:\Programming\Clipboard-View...
+2025-06-18 19:09:16,202 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:09:16,240 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:09:16,443 - HotkeyManager - ERROR - Error registering hotkey 'Ctrl+Shift+V': object of type 'function' has no len()
+2025-06-18 19:09:16,443 - HotkeyManager - ERROR - Error registering hotkey 'Ctrl+Shift+C': object of type 'function' has no len()
+2025-06-18 19:09:16,444 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:09:17,459 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:09:17,460 - ClipboardMonitor - INFO - New clipboard content (text): unch on system startup...
+Traceback (most recent call last):
+  File "c:\Programming\Clipboard-View...
+2025-06-18 19:12:46,257 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:12:46,290 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:12:46,354 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:12:47,364 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:12:47,365 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...
+2025-06-18 19:12:52,872 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-18 19:12:53,013 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-18 19:14:20,413 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 19:14:20,462 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 19:14:20,537 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 19:14:21,548 - HistoryManager - INFO - Added new text item to history
+2025-06-18 19:14:21,548 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...
+2025-06-18 21:06:12,185 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 21:06:12,253 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 21:06:12,364 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 21:06:13,387 - HistoryManager - INFO - Added new text item to history
+2025-06-18 21:06:13,387 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...
+2025-06-18 21:08:43,302 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 21:08:43,340 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 21:08:43,418 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 21:08:44,422 - HistoryManager - INFO - Added new text item to history
+2025-06-18 21:08:44,422 - ClipboardMonitor - INFO - New clipboard content (text): 2025-06-18 21:06:13,387 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\...
+2025-06-18 21:08:47,530 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-18 21:10:39,809 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 21:10:39,845 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 21:10:39,926 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 21:10:40,958 - HistoryManager - INFO - Added new text item to history
+2025-06-18 21:10:40,959 - ClipboardMonitor - INFO - New clipboard content (text): python src/main.py...
+2025-06-18 21:10:46,832 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-18 21:11:23,360 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 21:11:23,402 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 21:11:23,472 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 21:11:24,487 - HistoryManager - INFO - Added new text item to history
+2025-06-18 21:11:24,487 - ClipboardMonitor - INFO - New clipboard content (text): python src/main.py...
+2025-06-18 21:11:27,381 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-18 21:11:45,827 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 21:11:45,863 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 21:11:45,923 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 21:11:46,924 - HistoryManager - INFO - Added new text item to history
+2025-06-18 21:11:46,924 - ClipboardMonitor - INFO - New clipboard content (text): python src/main.py...
+2025-06-18 21:11:49,884 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-18 21:11:50,061 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-18 21:11:50,062 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-18 21:13:28,516 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 21:13:28,553 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 21:13:28,625 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 21:13:29,629 - HistoryManager - INFO - Added new text item to history
+2025-06-18 21:13:29,629 - ClipboardMonitor - INFO - New clipboard content (text): python src/main.py...
+2025-06-18 21:13:32,462 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-18 21:13:32,634 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-18 21:13:32,635 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-18 21:15:16,979 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-18 21:15:17,016 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-18 21:15:17,081 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-18 21:15:18,091 - HistoryManager - INFO - Added new text item to history
+2025-06-18 21:15:18,091 - ClipboardMonitor - INFO - New clipboard content (text): Traceback (most recent call last):
+  File "C:\Programming\Clipboard-Viewer\src\gui\settings_dialog....
+2025-06-18 21:15:28,460 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-18 21:15:28,609 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-18 21:15:28,609 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-18 21:15:35,755 - HotkeyManager - INFO - Unregistered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-18 21:15:35,755 - HotkeyManager - INFO - Unregistered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-18 21:15:35,756 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-18 21:15:35,756 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-18 21:15:35,757 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-18 21:15:48,231 - HotkeyManager - INFO - Unregistered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-18 21:15:48,231 - HotkeyManager - INFO - Unregistered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-18 21:15:48,232 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-18 21:15:48,233 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-18 21:15:48,233 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-18 21:15:56,912 - HotkeyManager - INFO - Hotkey triggered: toggle_window
+2025-06-18 21:15:59,611 - HotkeyManager - INFO - Hotkey triggered: toggle_window
+2025-06-18 21:16:35,392 - HistoryManager - INFO - Added new text item to history
+2025-06-18 21:16:35,392 - ClipboardMonitor - INFO - New clipboard content (text): python src/main.py...
+2025-06-18 21:16:38,180 - HotkeyManager - INFO - Hotkey triggered: copy_last_item
+2025-06-22 17:16:21,294 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-22 17:16:21,345 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-22 17:16:21,402 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-22 17:16:22,411 - HistoryManager - INFO - Added new text item to history
+2025-06-22 17:16:22,411 - ClipboardMonitor - INFO - New clipboard content (text): https://www.youtube.com/watch?v=OQb-myjZj_4&ab_channel=lekoen...
+2025-06-22 17:16:26,449 - HistoryManager - INFO - Added new text item to history
+2025-06-22 17:16:26,449 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...
+2025-06-22 17:17:16,287 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-22 17:17:16,337 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-22 17:17:16,396 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-22 17:17:17,415 - HistoryManager - INFO - Added new text item to history
+2025-06-22 17:17:17,416 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...
+2025-06-22 17:17:50,578 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-22 17:17:50,626 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-22 17:17:50,684 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-22 17:17:51,696 - HistoryManager - INFO - Added new text item to history
+2025-06-22 17:17:51,696 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...
+2025-06-22 17:17:57,786 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-22 17:17:57,914 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-22 17:17:57,915 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-22 17:18:06,143 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-22 17:18:06,192 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-22 17:18:06,252 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-22 17:18:07,277 - HistoryManager - INFO - Added new text item to history
+2025-06-22 17:18:07,278 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...
+2025-06-22 17:18:27,781 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-22 17:18:27,830 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-22 17:18:27,891 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-22 17:18:28,907 - HistoryManager - INFO - Added new text item to history
+2025-06-22 17:18:28,908 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...
+2025-06-22 17:21:21,244 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-22 17:21:21,295 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-22 17:21:21,358 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-22 17:21:22,378 - HistoryManager - INFO - Added new text item to history
+2025-06-22 17:21:22,379 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...
+2025-06-22 17:21:25,004 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-22 17:21:25,051 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-22 17:21:25,104 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-22 17:21:26,109 - HistoryManager - INFO - Added new text item to history
+2025-06-22 17:21:26,109 - ClipboardMonitor - INFO - New clipboard content (text): PS C:\Programming\Clipboard-Viewer> & c:/Programming/Clipboard-Viewer/venv/Scripts/python.exe c:/Pro...

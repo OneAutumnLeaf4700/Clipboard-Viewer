@@ -66,19 +66,6 @@ def main():
     system_tray.clear_history_requested.connect(main_window.clear_history)
     system_tray.exit_app_requested.connect(app.quit)
     
-    # Set up hotkeys
-    if settings.value("hotkeys/toggle_window", ""):
-        hotkey_manager.register_hotkey(
-            settings.value("hotkeys/toggle_window"),
-            lambda: main_window.show() if main_window.isHidden() else main_window.hide()
-        )
-    
-    if settings.value("hotkeys/copy_last", ""):
-        hotkey_manager.register_hotkey(
-            settings.value("hotkeys/copy_last"),
-            lambda: main_window.copy_last_item()
-        )
-    
     # Start monitoring clipboard
     clipboard_monitor.start_monitoring()
     
