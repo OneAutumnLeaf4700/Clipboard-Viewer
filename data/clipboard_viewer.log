@@ -209,3 +209,16 @@ Traceback (most recent call last):
 2025-06-22 17:36:32,693 - ClipboardMonitor - INFO - Starting clipboard monitoring
 2025-06-22 17:36:33,703 - HistoryManager - INFO - Added new text item to history
 2025-06-22 17:36:33,703 - ClipboardMonitor - INFO - New clipboard content (text): Good. Lets start populating the general section. I wish to have a section that allows a program to t...
+2025-06-22 17:48:27,456 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-06-22 17:48:27,522 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-06-22 17:48:27,599 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-06-22 17:48:28,621 - HistoryManager - INFO - Added new text item to history
+2025-06-22 17:48:28,622 - ClipboardMonitor - INFO - New clipboard content (text): Good. Lets start populating the general section. I wish to have a section that allows a program to t...
+2025-06-22 17:48:32,842 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-22 17:48:33,007 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-22 17:48:33,008 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-22 17:48:34,513 - HotkeyManager - INFO - Unregistered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-22 17:48:34,514 - HotkeyManager - INFO - Unregistered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-06-22 17:48:34,514 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-06-22 17:48:34,515 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-06-22 17:48:34,515 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
