@@ -3,6 +3,9 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QTabWidget,
                             QGroupBox, QFormLayout, QLineEdit, QWidget)
 from PyQt6.QtCore import Qt, QSettings
 from PyQt6.QtGui import QKeyEvent
+import sys
+import os
+import winreg
 
 class HotkeyLineEdit(QLineEdit):
     """Custom QLineEdit for capturing hotkey combinations."""
@@ -119,10 +122,12 @@ class SettingsDialog(QDialog):
         self.load_settings()
     
     def add_general_tab(self):
-        """Add the general settings tab (now blank for redesign)."""
+        """Add the general settings tab with a 'Start with Windows' option."""
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        # All widgets removed; blank tab for redesign
+        # Startup section
+        self.auto_start = QCheckBox("Start with Windows")
+        layout.addWidget(self.auto_start)
         layout.addStretch()
         self.tab_widget.addTab(tab, "General")
     
@@ -135,8 +140,18 @@ class SettingsDialog(QDialog):
         self.tab_widget.addTab(tab, "Appearance")
     
     def load_settings(self):
-        """Load settings from QSettings. (No settings to load; tabs are blank)"""
-        pass
+        """Load settings from registry for 'Start with Windows'."""
+        # Check if the app is set to run at startup
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                               r"Software\Microsoft\Windows\CurrentVersion\Run",
+                               0, winreg.KEY_READ) as key:
+                value, _ = winreg.QueryValueEx(key, "ClipboardViewer")
+                self.auto_start.setChecked(True)
+        except FileNotFoundError:
+            self.auto_start.setChecked(False)
+        except Exception:
+            self.auto_start.setChecked(False)
     
     def save_settings(self):
         """Save settings and close dialog."""
@@ -144,7 +159,24 @@ class SettingsDialog(QDialog):
         self.accept()
     
     def apply_settings(self):
-        """Apply settings without closing dialog. (No settings to apply; tabs are blank)"""
+        """Apply settings, including Windows startup registration."""
+        # Handle 'Start with Windows' option
+        try:
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                               r"Software\Microsoft\Windows\CurrentVersion\Run",
+                               0, winreg.KEY_SET_VALUE) as key:
+                if self.auto_start.isChecked():
+                    exe = sys.executable
+                    script = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src/main.py'))
+                    cmd = f'"{exe}" "{script}"'
+                    winreg.SetValueEx(key, "ClipboardViewer", 0, winreg.REG_SZ, cmd)
+                else:
+                    try:
+                        winreg.DeleteValue(key, "ClipboardViewer")
+                    except FileNotFoundError:
+                        pass
+        except Exception as e:
+            pass  # Optionally, show a warning dialog
         # Emit signal to notify main window of settings changes
         if self.parent():
             self.parent().settings_changed.emit()
