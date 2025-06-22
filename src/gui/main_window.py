@@ -68,6 +68,7 @@ class MainWindow(QMainWindow):
         
         # Connect settings changed signal
         self.settings_changed.connect(self.update_hotkeys)
+        self.settings_changed.connect(self.apply_theme_from_settings)
         
         # Create central widget and layout
         self.central_widget = QWidget()
@@ -329,10 +330,37 @@ class MainWindow(QMainWindow):
             self.status_bar.showMessage("Clipboard history cleared")
     
     def show_settings(self):
-        """Show the settings dialog."""
+        """Show the settings dialog and re-apply theme if changed."""
         from gui.settings_dialog import SettingsDialog
         dialog = SettingsDialog(self)
         dialog.exec()
+        self.apply_theme_from_settings()
+    
+    def apply_theme_from_settings(self):
+        """Apply the selected theme from QSettings to the QApplication."""
+        settings = QSettings()
+        theme = settings.value("appearance/theme", "System")
+        app = QApplication.instance()
+        if theme == "Dark":
+            app.setStyleSheet("""
+                QWidget { background-color: #232629; color: #f0f0f0; }
+                QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QListWidget, QSpinBox, QCheckBox, QPushButton {
+                    background-color: #2c2f34; color: #f0f0f0; border: 1px solid #444; }
+                QMenuBar, QMenu { background-color: #232629; color: #f0f0f0; }
+                QToolBar, QStatusBar { background-color: #232629; color: #f0f0f0; }
+                QTabWidget::pane { background: #232629; }
+            """)
+        elif theme == "Light":
+            app.setStyleSheet("""
+                QWidget { background-color: #f6f6f6; color: #232629; }
+                QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QListWidget, QSpinBox, QCheckBox, QPushButton {
+                    background-color: #ffffff; color: #232629; border: 1px solid #ccc; }
+                QMenuBar, QMenu { background-color: #f6f6f6; color: #232629; }
+                QToolBar, QStatusBar { background-color: #f6f6f6; color: #232629; }
+                QTabWidget::pane { background: #f6f6f6; }
+            """)
+        else:
+            app.setStyleSheet("")
     
     def on_search_text_changed(self, text):
         """Handle search text changes and filter the history list."""

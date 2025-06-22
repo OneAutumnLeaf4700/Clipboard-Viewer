@@ -41,6 +41,28 @@ def main():
     # Initialize settings
     settings = QSettings()
     
+    # Apply theme from settings
+    theme = settings.value("appearance/theme", "System")
+    if theme == "Dark":
+        app.setStyleSheet("""
+            QWidget { background-color: #232629; color: #f0f0f0; }
+            QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QListWidget, QSpinBox, QCheckBox, QPushButton {
+                background-color: #2c2f34; color: #f0f0f0; border: 1px solid #444; }
+            QMenuBar, QMenu { background-color: #232629; color: #f0f0f0; }
+            QToolBar, QStatusBar { background-color: #232629; color: #f0f0f0; }
+            QTabWidget::pane { background: #232629; }
+        """)
+    elif theme == "Light":
+        app.setStyleSheet("""
+            QWidget { background-color: #f6f6f6; color: #232629; }
+            QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QListWidget, QSpinBox, QCheckBox, QPushButton {
+                background-color: #ffffff; color: #232629; border: 1px solid #ccc; }
+            QMenuBar, QMenu { background-color: #f6f6f6; color: #232629; }
+            QToolBar, QStatusBar { background-color: #f6f6f6; color: #232629; }
+            QTabWidget::pane { background: #f6f6f6; }
+        """)
+    # System: use default (no stylesheet)
+    
     # Initialize history manager
     history_manager = HistoryManager()
     
