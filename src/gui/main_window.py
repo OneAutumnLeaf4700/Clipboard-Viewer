@@ -296,8 +296,13 @@ class MainWindow(QMainWindow):
         # Always add to the original list
         self.original_clipboard_history.insert(0, new_item)
         
-        # Update status
-        self.status_bar.showMessage(f"New clipboard content: {item.data_type}")
+        # Update status with session statistics
+        session_stats = self.notification_manager.get_session_summary()
+        self.status_bar.showMessage(
+            f"New {item.data_type} content | Session: {session_stats['total_items']} items "
+            f"(📝 {session_stats['text_items']} | 🖼️ {session_stats['image_items']} | 📁 {session_stats['file_items']}) "
+            f"| Duration: {session_stats['session_duration']}"
+        )
         
         # Show notification for new clipboard content
         content_preview = ""
@@ -315,6 +320,14 @@ class MainWindow(QMainWindow):
             f"📋 New {item.data_type.title()} Copied",
             content_preview,
             "info"
+        )
+        
+        # Also show enhanced toast notification with statistics
+        self.notification_manager.show_toast_notification(
+            f"📋 New {item.data_type.title()} Copied",
+            content_preview,
+            "info",
+            item.data_type
         )
         
         # Also show system tray notification if enabled
