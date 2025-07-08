@@ -116,11 +116,31 @@ class MainWindow(QMainWindow):
         self.search_input.setClearButtonEnabled(True)
         self.search_input.textChanged.connect(self.on_search_text_changed)
         
-        # Search type filter
+        # Search type filter with more options
         self.search_type_filter = QComboBox()
-        self.search_type_filter.addItems(["All Types", "Text", "Images", "Files"])
+        self.search_type_filter.addItems([
+            "All Types", 
+            "Text", 
+            "Images", 
+            "Files", 
+            "Favorites", 
+            "Recent (24h)", 
+            "This Week"
+        ])
         self.search_type_filter.currentTextChanged.connect(self.on_search_filter_changed)
-        self.search_type_filter.setToolTip("Filter by content type")
+        self.search_type_filter.setToolTip("Filter by content type or time period\nKeyboard shortcuts: Ctrl+1-7")
+        
+        # Add keyboard shortcuts for filter selection
+        from PyQt6.QtGui import QShortcut, QKeySequence
+        for i in range(7):
+            shortcut = QShortcut(QKeySequence(f"Ctrl+{i+1}"), self)
+            shortcut.activated.connect(lambda idx=i: self.set_filter_by_index(idx))
+        
+        # Add a clear filter button
+        self.clear_filter_button = QPushButton("Clear Filter")
+        self.clear_filter_button.setToolTip("Clear all filters and show all items")
+        self.clear_filter_button.clicked.connect(self.clear_all_filters)
+        self.clear_filter_button.setMaximumWidth(100)
         
         # Search debounce timer
         self.search_timer = QTimer()
@@ -129,11 +149,16 @@ class MainWindow(QMainWindow):
         
         self.search_layout.addWidget(self.search_input)
         self.search_layout.addWidget(self.search_type_filter)
+        self.search_layout.addWidget(self.clear_filter_button)
         
         self.history_list = QListWidget()
         self.history_list.setAlternatingRowColors(True)
         self.history_list.currentItemChanged.connect(self.on_item_selected)
         self.history_list.itemDoubleClicked.connect(self.copy_selected_to_clipboard)
+        
+        # Add context menu to history list
+        self.history_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.history_list.customContextMenuRequested.connect(self.show_history_context_menu)
         
         self.history_layout.addWidget(self.history_header)
         self.history_layout.addLayout(self.search_layout)
@@ -509,7 +534,16 @@ class MainWindow(QMainWindow):
     def on_search_filter_changed(self, filter_type):
         """Handle search filter changes."""
         self.current_search_type = filter_type
-        self.perform_search()
+        
+        # If no search text, apply filter directly
+        if not self.current_search_text.strip():
+            if filter_type == "All Types":
+                self.load_history()
+            else:
+                self.filter_history_list("", filter_type)
+        else:
+            # Apply both search and filter
+            self.perform_search()
     
     def perform_search(self):
         """Perform the actual search with current parameters."""
@@ -526,23 +560,97 @@ class MainWindow(QMainWindow):
         self.current_search_type = "All Types"
         self.load_history()
     
+    def clear_all_filters(self):
+        """Clear all filters and show all items."""
+        self.search_input.clear()
+        self.search_type_filter.setCurrentText("All Types")
+        self.current_search_text = ""
+        self.current_search_type = "All Types"
+        self.load_history()
+        
+        # Show notification
+        self.notification_manager.show_clipboard_notification(
+            "🔄 Filters Cleared",
+            "All filters have been cleared, showing all items",
+            "info"
+        )
+    
+    def set_filter_by_index(self, index):
+        """Set the filter by index (for keyboard shortcuts)."""
+        if 0 <= index < self.search_type_filter.count():
+            self.search_type_filter.setCurrentIndex(index)
+            filter_name = self.search_type_filter.itemText(index)
+            
+            # Show notification
+            self.notification_manager.show_clipboard_notification(
+                f"🔍 Filter: {filter_name}",
+                f"Filter set to {filter_name} via keyboard shortcut",
+                "info"
+            )
+    
     def filter_history_list(self, search_text, filter_type="All Types"):
         """Filter the history list based on the search text and type filter."""
+        from datetime import datetime, timedelta
+        
         # Clear current history list
         self.history_list.clear()
         self.clipboard_history.clear()
         
-        # Convert filter type to data type
-        data_type_filter = None
-        if filter_type == "Text":
-            data_type_filter = "text"
-        elif filter_type == "Images":
-            data_type_filter = "image"
-        elif filter_type == "Files":
-            data_type_filter = "files"
-        
-        # Get filtered items from history manager
-        items = self.history_manager.search_items(search_text, data_type_filter, limit=100)
+        # Handle different filter types
+        if filter_type == "Favorites":
+            # Get favorite items
+            items = self.history_manager.get_favorites(limit=100)
+            
+            # Filter by search text if provided
+            if search_text.strip():
+                filtered_items = []
+                for item in items:
+                    if self._item_matches_search(item, search_text):
+                        filtered_items.append(item)
+                items = filtered_items
+                
+        elif filter_type == "Recent (24h)":
+            # Get all items and filter by time
+            all_items = self.history_manager.get_all_items(limit=1000)
+            cutoff_time = datetime.now() - timedelta(hours=24)
+            
+            items = [item for item in all_items if item.timestamp >= cutoff_time]
+            
+            # Filter by search text if provided
+            if search_text.strip():
+                filtered_items = []
+                for item in items:
+                    if self._item_matches_search(item, search_text):
+                        filtered_items.append(item)
+                items = filtered_items
+                
+        elif filter_type == "This Week":
+            # Get all items and filter by time
+            all_items = self.history_manager.get_all_items(limit=1000)
+            cutoff_time = datetime.now() - timedelta(days=7)
+            
+            items = [item for item in all_items if item.timestamp >= cutoff_time]
+            
+            # Filter by search text if provided
+            if search_text.strip():
+                filtered_items = []
+                for item in items:
+                    if self._item_matches_search(item, search_text):
+                        filtered_items.append(item)
+                items = filtered_items
+                
+        else:
+            # Handle content type filters
+            data_type_filter = None
+            if filter_type == "Text":
+                data_type_filter = "text"
+            elif filter_type == "Images":
+                data_type_filter = "image"
+            elif filter_type == "Files":
+                data_type_filter = "files"
+            
+            # Get filtered items from history manager
+            items = self.history_manager.search_items(search_text, data_type_filter, limit=100)
         
         # Add items to history list
         for item in items:
@@ -554,22 +662,40 @@ class MainWindow(QMainWindow):
             self.clipboard_history.append(list_item)
         
         # Update status with more detailed information
-        filter_text = f" ({filter_type.lower()})" if filter_type != "All Types" else ""
-        self.status_bar.showMessage(f"Found {len(items)} items matching '{search_text}'{filter_text}")
+        if search_text.strip():
+            filter_text = f" ({filter_type.lower()})" if filter_type != "All Types" else ""
+            self.status_bar.showMessage(f"Found {len(items)} items matching '{search_text}'{filter_text}")
+        else:
+            self.status_bar.showMessage(f"Showing {len(items)} items ({filter_type})")
         
         # Show notification for search results
         if len(items) == 0:
+            search_desc = f"matching '{search_text}'" if search_text.strip() else f"in {filter_type.lower()}"
             self.notification_manager.show_clipboard_notification(
                 "🔍 No Results",
-                f"No items found matching '{search_text}'",
+                f"No items found {search_desc}",
                 "warning"
             )
         else:
+            search_desc = f"matching '{search_text}'" if search_text.strip() else f"in {filter_type.lower()}"
             self.notification_manager.show_clipboard_notification(
-                "🔍 Search Results",
-                f"Found {len(items)} items matching '{search_text}'",
+                "🔍 Filter Results",
+                f"Found {len(items)} items {search_desc}",
                 "info"
             )
+    
+    def _item_matches_search(self, item, search_text):
+        """Check if an item matches the search text."""
+        search_text = search_text.lower()
+        
+        if item.data_type == 'text' and isinstance(item.content, str):
+            return search_text in item.content.lower()
+        elif item.data_type == 'files' and isinstance(item.content, list):
+            return any(search_text in str(file_path).lower() for file_path in item.content)
+        elif item.data_type == 'image':
+            return search_text in "[Image]".lower()
+        else:
+            return search_text in str(item.content).lower()
     
     def resizeEvent(self, event):
         """Handle window resize for responsive layout."""
@@ -610,16 +736,19 @@ class MainWindow(QMainWindow):
             self.search_layout.setDirection(QHBoxLayout.Direction.TopToBottom)
             self.search_input.setMinimumWidth(200)
             self.search_type_filter.setMinimumWidth(120)
+            self.clear_filter_button.setMaximumWidth(80)
         elif width < breakpoints['tablet']:
             # Horizontal but with minimum widths
             self.search_layout.setDirection(QHBoxLayout.Direction.LeftToRight)
             self.search_input.setMinimumWidth(150)
             self.search_type_filter.setMinimumWidth(100)
+            self.clear_filter_button.setMaximumWidth(80)
         else:
             # Normal horizontal layout
             self.search_layout.setDirection(QHBoxLayout.Direction.LeftToRight)
             self.search_input.setMinimumWidth(200)
             self.search_type_filter.setMinimumWidth(120)
+            self.clear_filter_button.setMaximumWidth(100)
         
         # Adjust toolbar based on window size
         self.adjustToolbarForWindowSize(width)
@@ -724,3 +853,75 @@ class MainWindow(QMainWindow):
             if item:
                 self.copy_selected_to_clipboard(item)
                 self.status_bar.showMessage("Last item copied to clipboard")
+    
+    def show_history_context_menu(self, position):
+        """Show context menu for history items."""
+        item = self.history_list.itemAt(position)
+        if not item:
+            return
+        
+        context_menu = QMenu(self)
+        
+        # Copy action
+        copy_action = QAction("📋 Copy to Clipboard", self)
+        copy_action.triggered.connect(lambda: self.copy_selected_to_clipboard())
+        context_menu.addAction(copy_action)
+        
+        # Save action
+        save_action = QAction("💾 Save to File", self)
+        save_action.triggered.connect(lambda: self.save_selected_item())
+        context_menu.addAction(save_action)
+        
+        context_menu.addSeparator()
+        
+        # Toggle favorite action
+        favorite_action = QAction("⭐ Toggle Favorite", self)
+        favorite_action.triggered.connect(lambda: self.toggle_item_favorite(item))
+        context_menu.addAction(favorite_action)
+        
+        # Delete action
+        delete_action = QAction("🗑️ Delete", self)
+        delete_action.triggered.connect(lambda: self.delete_history_item(item))
+        context_menu.addAction(delete_action)
+        
+        # Show the context menu
+        context_menu.exec(self.history_list.mapToGlobal(position))
+    
+    def toggle_item_favorite(self, item):
+        """Toggle the favorite status of a history item."""
+        # This would need to be implemented with the database item ID
+        # For now, show a notification
+        self.notification_manager.show_clipboard_notification(
+            "⭐ Favorite Toggle",
+            "Favorites functionality would be fully implemented with database integration",
+            "info"
+        )
+    
+    def delete_history_item(self, item):
+        """Delete a history item."""
+        reply = QMessageBox.question(
+            self, "Delete Item",
+            "Are you sure you want to delete this item?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        
+        if reply == QMessageBox.StandardButton.Yes:
+            row = self.history_list.row(item)
+            self.history_list.takeItem(row)
+            
+            # Remove from clipboard_history list
+            if row < len(self.clipboard_history):
+                self.clipboard_history.pop(row)
+            
+            # Remove from original_clipboard_history list
+            if row < len(self.original_clipboard_history):
+                self.original_clipboard_history.pop(row)
+            
+            self.status_bar.showMessage("Item deleted")
+            
+            # Show notification
+            self.notification_manager.show_clipboard_notification(
+                "🗑️ Item Deleted",
+                "History item has been deleted",
+                "warning"
+            )
