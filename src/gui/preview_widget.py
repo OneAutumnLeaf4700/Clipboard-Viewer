@@ -45,17 +45,25 @@ class PreviewWidget(QWidget):
         # Set the content widget as the scroll area's widget
         self.scroll_area.setWidget(self.content_widget)
         
-        # Action buttons
+        # Set minimum size for content widget
+        self.content_widget.setMinimumSize(200, 150)
+        
+        # Action buttons with responsive design
         self.button_layout = QHBoxLayout()
         
-        self.copy_button = QPushButton("Copy to Clipboard")
+        self.copy_button = QPushButton("📋 Copy")
         self.copy_button.clicked.connect(self.on_copy_clicked)
+        self.copy_button.setToolTip("Copy to clipboard")
         
-        self.save_button = QPushButton("Save As...")
+        self.save_button = QPushButton("💾 Save")
         self.save_button.clicked.connect(self.on_save_clicked)
+        self.save_button.setToolTip("Save to file")
         
+        # Add stretch to center buttons
+        self.button_layout.addStretch()
         self.button_layout.addWidget(self.copy_button)
         self.button_layout.addWidget(self.save_button)
+        self.button_layout.addStretch()
         
         # Add all components to main layout
         self.layout.addWidget(self.header_label)
@@ -174,7 +182,10 @@ class PreviewWidget(QWidget):
                 pixmap = QPixmap(temp_path)
                 
                 # Scale pixmap to fit the preview area while maintaining aspect ratio
-                max_size = QSize(400, 300)
+                # Use dynamic sizing based on scroll area size
+                scroll_size = self.scroll_area.size()
+                max_size = QSize(min(scroll_size.width() - 20, 600), 
+                               min(scroll_size.height() - 100, 400))
                 scaled_pixmap = pixmap.scaled(max_size, 
                                              Qt.AspectRatioMode.KeepAspectRatio, 
                                              Qt.TransformationMode.SmoothTransformation)

@@ -50,9 +50,13 @@ class MainWindow(QMainWindow):
     def __init__(self, history_manager, clipboard_monitor):
         super().__init__()
         
-        # Window setup
+        # Window setup with responsive design
         self.setWindowTitle("Clipboard Viewer")
-        self.setMinimumSize(800, 600)
+        self.setMinimumSize(600, 400)  # Reduced minimum size for better responsiveness
+        self.resize(1000, 700)  # Default size
+        
+        # Track window size for responsive adjustments
+        self.last_window_size = self.size()
         
         # Store references to managers
         self.history_manager = history_manager
@@ -72,13 +76,18 @@ class MainWindow(QMainWindow):
         self.settings_changed.connect(self.update_hotkeys)
         self.settings_changed.connect(self.apply_theme_from_settings)
         
-        # Create central widget and layout
+        # Create central widget and layout with responsive design
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.main_layout = QVBoxLayout(self.central_widget)
-        
-        # Create splitter for history and preview
+
+        # Responsive adjustments: set stretch factors
+        self.main_layout.setStretch(0, 1)
+        self.main_layout.setStretch(1, 2)
+
+        # Create splitter for history and preview with responsive sizing
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
+        self.splitter.setChildrenCollapsible(False)  # Avoid collapsing widgets
         
         # Create history list
         self.history_widget = QWidget()
@@ -129,7 +138,7 @@ class MainWindow(QMainWindow):
         # Add widgets to splitter
         self.splitter.addWidget(self.history_widget)
         self.splitter.addWidget(self.preview_widget)
-        self.splitter.setSizes([300, 500])  # Initial sizes
+        self.splitter.setSizes([1, 3])  # Use relative sizes for better responsiveness
         
         # Add splitter to main layout
         self.main_layout.addWidget(self.splitter)
@@ -150,6 +159,9 @@ class MainWindow(QMainWindow):
         
         # Load initial history
         self.load_history()
+        
+        # Set up responsive layout adjustments
+        self.adjustLayoutForWindowSize()
     
     def create_toolbar(self):
         """Create the application toolbar."""
@@ -436,6 +448,31 @@ class MainWindow(QMainWindow):
         # Update status with more detailed information
         filter_text = f" ({filter_type.lower()})" if filter_type != "All Types" else ""
         self.status_bar.showMessage(f"Found {len(items)} items matching '{search_text}'{filter_text}")
+    
+    def resizeEvent(self, event):
+        """Handle window resize for responsive layout."""
+        super().resizeEvent(event)
+        self.adjustLayoutForWindowSize()
+        
+    def adjustLayoutForWindowSize(self):
+        """Adjust layout based on window size for responsive design."""
+        current_size = self.size()
+        
+        # Switch to vertical layout for narrow windows
+        if current_size.width() < 800:
+            self.splitter.setOrientation(Qt.Orientation.Vertical)
+            self.splitter.setSizes([1, 2])  # Top smaller, bottom larger
+        else:
+            self.splitter.setOrientation(Qt.Orientation.Horizontal)
+            self.splitter.setSizes([1, 3])  # Left smaller, right larger
+        
+        # Adjust search layout for very narrow windows
+        if current_size.width() < 600:
+            # Stack search elements vertically
+            self.search_layout.setDirection(QHBoxLayout.Direction.TopToBottom)
+        else:
+            # Keep search elements horizontal
+            self.search_layout.setDirection(QHBoxLayout.Direction.LeftToRight)
     
     def closeEvent(self, event):
         """Handle window close event."""
