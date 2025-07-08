@@ -1,68 +1,63 @@
 # Clipboard Viewer
 
-A Python application that monitors and maintains a history of all clipboard content, allowing you to view, search, and restore any previously copied item.
+A powerful Python application that monitors and maintains a comprehensive history of all clipboard content, allowing you to view, search, and restore any previously copied item with ease.
 
-## Features
+## Screenshots
 
-- **Real-time Clipboard Monitoring**: Automatically captures all clipboard changes
-- **History Management**: View chronological list of all copied items
-- **Multi-format Support**: 
-  - Plain text
-  - Rich text/HTML
-  - Images (PNG, JPEG, etc.)
-  - File paths
-  - Custom formats
-- **Search & Filter**: Find specific clipboard entries quickly
-- **Favorites System**: Pin frequently used items
-- **Export/Import**: Backup and restore clipboard history
-- **System Tray Integration**: Run in background with minimal UI footprint
-- **Hotkey Access**: Quick access with customizable keyboard shortcuts
+![](docs/screenshots/empty_clipboard.png)
+![](docs/screenshots/image_copied.png)
 
-## Technical Details
+## ✨ Features
 
-- **Language**: Python 3.8+
-- **GUI Framework**: PyQt6
-- **Platform**: Windows (with potential cross-platform support)
-- **Database**: SQLite for history storage
-- **Dependencies**: See `requirements.txt`
+### 🔄 Real-time Clipboard Monitoring
+- **Automatic Capture**: Monitors clipboard changes in real-time
+- **Multi-format Support**: Handles text, images, files, and custom formats
+- **Smart Detection**: Identifies content types automatically
+- **Background Operation**: Runs silently in system tray
 
-## Project Structure
+### 📚 History Management
+- **Persistent Storage**: SQLite database for reliable history storage
+- **Configurable Limits**: Set maximum history size and retention periods
+- **Automatic Cleanup**: Removes old entries based on age or count
+- **Database Optimization**: Indexed queries and automatic compaction
 
-```
-Clipboard Viewer/
-├── src/
-│   ├── main.py              # Application entry point
-│   ├── clipboard_monitor.py # Clipboard monitoring service
-│   ├── history_manager.py   # History storage and retrieval
-│   ├── gui/
-│   │   ├── __init__.py
-│   │   ├── main_window.py   # Main application window
-│   │   ├── history_view.py  # Clipboard history display
-│   │   ├── search_dialog.py # Search and filter interface
-│   │   └── settings_dialog.py # Application settings
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── database.py      # SQLite database operations
-│   │   ├── hotkeys.py       # Global hotkey management
-│   │   └── system_tray.py   # System tray integration
-│   └── models/
-│       ├── __init__.py
-│       └── clipboard_item.py # Clipboard item data model
-├── assets/
-│   ├── icons/               # Application icons
-│   └── styles/              # QSS stylesheets
-├── data/                    # User data directory
-├── requirements.txt         # Python dependencies
-├── setup.py                # Installation script
-└── README.md
-```
+### 🔍 Search & Organization
+- **Advanced Search**: Find content by type and keywords
+- **Type Filtering**: Filter by text, images, or files
+- **Favorites System**: Database support for pinning items (UI coming soon)
+- **Session Statistics**: Track clipboard usage with detailed metrics
 
-## Installation
+### 🎨 User Interface
+- **Modern Design**: Clean PyQt6 interface with dark/light themes
+- **Responsive Layout**: Adapts to different screen sizes
+- **Preview Pane**: View images and formatted text directly
+- **System Tray Integration**: Minimal footprint with full functionality
+- **Toast Notifications**: Real-time feedback with statistics
+
+### ⚙️ Customization
+- **Hotkey Support**: Customizable keyboard shortcuts
+- **Theme Selection**: System, light, or dark themes
+- **Notification Settings**: Configure duration and display options
+- **Startup Options**: Launch with Windows startup
+
+### 📊 Advanced Features
+- **Export Functionality**: Save clipboard history to JSON format (API available)
+- **Session Tracking**: Monitor clipboard usage patterns
+- **Responsive Design**: Adapts to different screen sizes and orientations
+
+## 🚀 Quick Start
+
+### Prerequisites
+- **Python 3.8+**
+- **Windows 10+** (primary target)
+- **50MB free disk space**
+
+### Installation
 
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
-   cd "Clipboard Viewer"
+   cd Clipboard-Viewer
    ```
 
 2. **Install dependencies**:
@@ -75,61 +70,73 @@ Clipboard Viewer/
    python src/main.py
    ```
 
-## Usage
+## 📖 Usage Guide
 
-1. **Start the application** - it will begin monitoring clipboard automatically
-2. **View history** - Click the system tray icon or use the hotkey (default: Ctrl+Shift+V)
-3. **Copy items** - Double-click any history item to copy it back to clipboard
-4. **Search** - Use the search bar to find specific content
-5. **Manage favorites** - Right-click items to add/remove from favorites
-6. **Settings** - Configure hotkeys, history limits, and data retention
+### Getting Started
+1. **Launch**: Run the application - it starts monitoring automatically
+2. **Access History**: Use system tray icon or hotkey (default: `Ctrl+Shift+V`)
+3. **Copy Items**: Double-click any history item to restore it to clipboard
+4. **Search**: Use the search bar to find specific content quickly
+5. **Preview**: Select items to view detailed preview in the right panel
 
-## Features in Detail
+### Advanced Features
+- **Type Filtering**: Use the dropdown to filter by text, images, or files
+- **Clear History**: Remove all items or keep only favorites
+- **Settings**: Configure themes and startup options
+- **Statistics**: View session statistics in notifications and status bar
+- **Responsive Layout**: Resize window to see adaptive interface changes
 
-### Clipboard Monitoring
-- Monitors clipboard changes in real-time
-- Captures text, images, and file paths
-- Handles multiple clipboard formats simultaneously
-- Optional duplicate detection and filtering
+## 🏗️ Project Structure
 
-### History Management
-- Persistent storage using SQLite database
-- Configurable history size limits
-- Automatic cleanup of old entries
-- Export history to various formats (JSON, CSV, HTML)
+```
+Clipboard-Viewer/
+├── src/
+│   ├── main.py                 # Application entry point
+│   ├── clipboard_monitor.py    # Real-time clipboard monitoring
+│   ├── history_manager.py      # History storage and management
+│   ├── gui/
+│   │   ├── main_window.py      # Main application window
+│   │   ├── history_view.py     # Clipboard history display
+│   │   ├── preview_widget.py   # Content preview component
+│   │   └── settings_dialog.py  # Settings configuration
+│   └── utils/
+│       ├── database.py         # SQLite database operations
+│       ├── clipboard_utils.py  # Clipboard data handling
+│       ├── hotkeys.py          # Global hotkey management
+│       ├── system_tray.py      # System tray integration
+│       └── notification_manager.py # Toast notifications
+├── assets/
+│   └── icons/                  # Application icons
+├── data/                       # User data and database
+├── requirements.txt            # Python dependencies
+└── README.md
+```
 
-### User Interface
-- Clean, modern PyQt6 interface
-- Dark/light theme support
-- Resizable columns and customizable layout
-- Preview pane for images and formatted text
-- Drag-and-drop support
+## ⚙️ Configuration
 
-### Privacy & Security
-- Optional encryption for sensitive data
-- Configurable data retention periods
-- Exclude specific applications from monitoring
-- Password protection for application access
-
-## Configuration
-
-The application stores settings in `data/config.json`:
+### Settings File
+Settings are stored in `data/config.json` and Windows Registry:
 
 ```json
 {
-  "hotkey": "Ctrl+Shift+V",
-  "max_history_items": 1000,
-  "auto_cleanup_days": 30,
-  "monitor_images": true,
-  "monitor_files": true,
-  "exclude_apps": ["KeePass", "1Password"],
-  "theme": "system"
+  "appearance": {
+    "theme": "System"
+  },
+  "general": {
+    "start_minimized": false,
+    "max_history_items": 1000,
+    "auto_cleanup_days": 30
+  }
 }
 ```
 
-## Requirements
+### Available Settings
+- **Theme**: System, Light, or Dark theme
+- **Start with Windows**: Automatically launch on system startup
+- **History Limits**: Maximum items and retention period (configured in code)
+- **Hotkeys**: Toggle window visibility (default: `Ctrl+Shift+V`)
 
-- Python 3.8 or higher
-- Windows 10+ (primary target)
-- 50MB free disk space for history storage
-- Internet connection for initial setup only
+### Database
+- **Location**: `data/clipboard_history.db`
+- **Optimization**: Automatic indexing and compaction
+- **Backup**: Manual export available through API
