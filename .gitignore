@@ -8,3 +8,6 @@ __pycache__/
 
 # IDE files
 .vscode/
+
+# User data (databases, logs, config)
+data/
