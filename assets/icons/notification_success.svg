@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Success circle -->
+  <circle cx="12" cy="12" r="10" fill="#28A745" stroke="#1E7E34" stroke-width="2"/>
+  
+  <!-- Checkmark -->
+  <path d="M8 12l2 2 4-4" stroke="#FFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

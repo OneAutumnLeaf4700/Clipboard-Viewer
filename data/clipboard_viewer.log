@@ -245,3 +245,88 @@ Traceback (most recent call last):
 2025-06-22 18:33:29,391 - HotkeyManager - INFO - Unregistered all hotkeys
 2025-06-22 18:33:29,532 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
 2025-06-22 18:33:29,533 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-07-08 21:42:24,839 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 21:42:24,901 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 21:42:24,975 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 21:42:25,985 - HistoryManager - INFO - Added new text item to history
+2025-07-08 21:42:25,985 - ClipboardMonitor - INFO - New clipboard content (text): https://demonicscans.org/manga/Make-the-Exorcist-Fall-in-Love...
+2025-07-08 22:07:12,099 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:07:12,128 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:07:12,466 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:08:27,879 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:08:27,910 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:08:28,182 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:09:57,279 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:09:57,308 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:09:57,580 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:10:54,768 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:10:54,796 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:10:55,059 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:11:19,291 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:11:19,319 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:11:19,598 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:13:07,043 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:13:07,074 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:13:07,341 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:13:08,408 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:13:08,408 - ClipboardMonitor - INFO - New clipboard content (text): 
+What we do
+About us
+Grants
+Investments
+Resources
+Search
+Type something
+Apply for a grant
+S...
+2025-07-08 22:13:36,463 - HistoryManager - INFO - Cleared history (keep_favorites=True)
+2025-07-08 22:19:05,789 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:19:05,818 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:19:06,065 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:19:07,101 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:19:07,101 - ClipboardMonitor - INFO - New clipboard content (text): 
+What we do
+About us
+Grants
+Investments
+Resources
+Search
+Type something
+Apply for a grant
+S...
+2025-07-08 22:19:41,270 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-07-08 22:19:41,332 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-07-08 22:19:41,333 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-07-08 22:19:48,537 - HotkeyManager - INFO - Unregistered hotkey 'toggle_window': Ctrl+Shift+V
+2025-07-08 22:19:48,538 - HotkeyManager - INFO - Unregistered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-07-08 22:19:48,538 - HotkeyManager - INFO - Unregistered all hotkeys
+2025-07-08 22:19:48,538 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
+2025-07-08 22:19:48,538 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-07-08 22:19:54,110 - HistoryManager - INFO - Cleared history (keep_favorites=True)
+2025-07-08 22:20:02,227 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:20:02,227 - ClipboardMonitor - INFO - New clipboard content (text): test...
+2025-07-08 22:20:06,214 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:20:06,214 - ClipboardMonitor - INFO - New clipboard content (text): he...
+2025-07-08 22:20:11,213 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:20:11,213 - ClipboardMonitor - INFO - New clipboard content (text): test...
+2025-07-08 22:20:17,674 - HistoryManager - INFO - Cleared history (keep_favorites=True)
+2025-07-08 22:28:04,996 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:28:05,026 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:28:05,284 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:28:06,315 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:28:06,315 - ClipboardMonitor - INFO - New clipboard content (text): Analyse my project. Help me draft some improvements. Before u make any improvements, i want u to ens...
+2025-07-08 22:43:09,093 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:43:09,124 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:44:22,346 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:44:22,408 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:44:22,740 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:45:02,773 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:45:02,800 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:45:03,053 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:45:04,101 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:45:04,101 - ClipboardMonitor - INFO - New clipboard content (text): feature/responsive-design-improvements...
+2025-07-08 22:51:34,633 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:51:34,663 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:51:34,892 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:51:35,951 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:51:35,951 - ClipboardMonitor - INFO - New clipboard content (text): feature/responsive-design-improvements...

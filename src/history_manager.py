@@ -389,8 +389,8 @@ class HistoryManager(QObject):
         self.auto_cleanup_days = days
         self.cleanup_old_items()
     
-    def search_items(self, query, limit=None):
-        """Search for clipboard items containing the query string."""
+    def search_items(self, query, data_type_filter=None, limit=None):
+        """Search for clipboard items containing the query string with optional data type filtering."""
         items = []
         
         try:
@@ -401,14 +401,24 @@ class HistoryManager(QObject):
             if limit is None:
                 limit = self.max_history_items
             
-            # Get all text items first
-            cursor.execute('''
-                SELECT id, timestamp, data_type, content, favorite
-                FROM clipboard_items
-                WHERE data_type = 'text'
-                ORDER BY timestamp DESC
-                LIMIT ?
-            ''', (limit,))
+            # Build query with optional data type filter
+            if data_type_filter:
+                sql_query = '''
+                    SELECT id, timestamp, data_type, content, favorite
+                    FROM clipboard_items
+                    WHERE data_type = ?
+                    ORDER BY timestamp DESC
+                    LIMIT ?
+                '''
+                cursor.execute(sql_query, (data_type_filter, limit))
+            else:
+                sql_query = '''
+                    SELECT id, timestamp, data_type, content, favorite
+                    FROM clipboard_items
+                    ORDER BY timestamp DESC
+                    LIMIT ?
+                '''
+                cursor.execute(sql_query, (limit,))
             
             rows = cursor.fetchall()
             
@@ -421,12 +431,21 @@ class HistoryManager(QObject):
                     # Deserialize content
                     content = pickle.loads(serialized_content)
                     
-                    # Skip if content is not a string
-                    if not isinstance(content, str):
-                        continue
+                    # Search based on data type
+                    match_found = False
+                    if data_type == 'text' and isinstance(content, str):
+                        match_found = query in content.lower()
+                    elif data_type == 'files' and isinstance(content, list):
+                        # Search in file paths
+                        match_found = any(query in str(file_path).lower() for file_path in content)
+                    elif data_type == 'image':
+                        # For images, search in the display text or metadata if available
+                        match_found = query in f"[Image]".lower()
+                    else:
+                        # For other types, basic search
+                        match_found = query in str(content).lower()
                     
-                    # Check if content contains the search query
-                    if query in content.lower():
+                    if match_found:
                         # Convert timestamp string to datetime
                         timestamp = datetime.fromisoformat(timestamp_str)
                         

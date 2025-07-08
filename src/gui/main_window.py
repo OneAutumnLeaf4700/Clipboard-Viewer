@@ -4,7 +4,7 @@ from datetime import datetime
 from PyQt6.QtWidgets import (QMainWindow, QApplication, QSplitter, QListWidget, 
                             QListWidgetItem, QVBoxLayout, QHBoxLayout, QWidget, 
                             QLabel, QPushButton, QMenu, QSystemTrayIcon, 
-                            QMessageBox, QFrame, QToolBar, QStatusBar, QFileDialog, QDialog)
+                            QMessageBox, QFrame, QToolBar, QStatusBar, QFileDialog, QDialog, QSizePolicy)
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QFont, QCursor
 from PyQt6.QtCore import Qt, QSize, pyqtSignal, QTimer, QSettings
 
@@ -13,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.clipboard_utils import get_clipboard_data
 from gui.preview_widget import PreviewWidget
 from utils.hotkeys import HotkeyManager
+from utils.notification_manager import NotificationManager
 
 class ClipboardListItem(QListWidgetItem):
     """Custom list widget item to store clipboard data and its type."""
@@ -23,22 +24,22 @@ class ClipboardListItem(QListWidgetItem):
         self.content = content
         self.timestamp = timestamp or datetime.now()
         
-        # Set display text based on data type
+        # Set display text based on data type with proper icon paths
         if data_type == "text":
             display_text = content[:50] + "..." if len(content) > 50 else content
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - {display_text}")
-            self.setIcon(QIcon("assets/icons/text_icon.svg"))  # Placeholder for actual icon path
+            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "text_icon.svg")))
         elif data_type == "image":
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - [Image]")
-            self.setIcon(QIcon("assets/icons/image_icon.svg"))  # Placeholder for actual icon path
+            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "image_icon.svg")))
         elif data_type == "files":
             file_count = len(content)
             file_text = f"{file_count} file{'s' if file_count > 1 else ''}"
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - {file_text}")
-            self.setIcon(QIcon("assets/icons/file_icon.svg"))  # Placeholder for actual icon path
+            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "file_icon.svg")))
         else:
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - [Unknown format]")
-            self.setIcon(QIcon("assets/icons/unknown_icon.svg"))  # Placeholder for actual icon path
+            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "unknown_icon.svg")))
 
 
 class MainWindow(QMainWindow):
@@ -50,9 +51,18 @@ class MainWindow(QMainWindow):
     def __init__(self, history_manager, clipboard_monitor):
         super().__init__()
         
-        # Window setup
-        self.setWindowTitle("Clipboard Viewer")
-        self.setMinimumSize(800, 600)
+        # Window setup with responsive design and branding
+        self.setWindowTitle("📋 Clipboard Viewer")
+        self.setMinimumSize(600, 400)  # Reduced minimum size for better responsiveness
+        self.resize(1000, 700)  # Default size
+        
+        # Set application icon
+        app_icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "app_icon.svg")
+        if os.path.exists(app_icon_path):
+            self.setWindowIcon(QIcon(app_icon_path))
+        
+        # Track window size for responsive adjustments
+        self.last_window_size = self.size()
         
         # Store references to managers
         self.history_manager = history_manager
@@ -62,21 +72,31 @@ class MainWindow(QMainWindow):
         self.clipboard_history = []
         self.original_clipboard_history = []
         self.last_clipboard_content = None
+        self.current_search_text = ""
+        self.current_search_type = "All Types"
         
         # Initialize hotkey manager
         self.hotkey_manager = HotkeyManager()
+        
+        # Initialize notification manager
+        self.notification_manager = NotificationManager(self)
         
         # Connect settings changed signal
         self.settings_changed.connect(self.update_hotkeys)
         self.settings_changed.connect(self.apply_theme_from_settings)
         
-        # Create central widget and layout
+        # Create central widget and layout with responsive design
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         self.main_layout = QVBoxLayout(self.central_widget)
-        
-        # Create splitter for history and preview
+
+        # Responsive adjustments: set stretch factors
+        self.main_layout.setStretch(0, 1)
+        self.main_layout.setStretch(1, 2)
+
+        # Create splitter for history and preview with responsive sizing
         self.splitter = QSplitter(Qt.Orientation.Horizontal)
+        self.splitter.setChildrenCollapsible(False)  # Avoid collapsing widgets
         
         # Create history list
         self.history_widget = QWidget()
@@ -85,19 +105,30 @@ class MainWindow(QMainWindow):
         self.history_header = QLabel("Clipboard History")
         self.history_header.setFont(QFont("Arial", 12, QFont.Weight.Bold))
         
-        # Add search bar
+        # Add enhanced search bar
         self.search_layout = QHBoxLayout()
-        from PyQt6.QtWidgets import QLineEdit
+        from PyQt6.QtWidgets import QLineEdit, QComboBox, QDateEdit
+        from PyQt6.QtCore import QDate
+        
+        # Search input with improved styling
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Search clipboard history...")
+        self.search_input.setPlaceholderText("🔍 Search clipboard history...")
+        self.search_input.setClearButtonEnabled(True)
         self.search_input.textChanged.connect(self.on_search_text_changed)
         
-        self.clear_search_button = QPushButton("Clear")
-        self.clear_search_button.clicked.connect(self.clear_search)
-        self.clear_search_button.setEnabled(False)
+        # Search type filter
+        self.search_type_filter = QComboBox()
+        self.search_type_filter.addItems(["All Types", "Text", "Images", "Files"])
+        self.search_type_filter.currentTextChanged.connect(self.on_search_filter_changed)
+        self.search_type_filter.setToolTip("Filter by content type")
+        
+        # Search debounce timer
+        self.search_timer = QTimer()
+        self.search_timer.setSingleShot(True)
+        self.search_timer.timeout.connect(self.perform_search)
         
         self.search_layout.addWidget(self.search_input)
-        self.search_layout.addWidget(self.clear_search_button)
+        self.search_layout.addWidget(self.search_type_filter)
         
         self.history_list = QListWidget()
         self.history_list.setAlternatingRowColors(True)
@@ -116,7 +147,7 @@ class MainWindow(QMainWindow):
         # Add widgets to splitter
         self.splitter.addWidget(self.history_widget)
         self.splitter.addWidget(self.preview_widget)
-        self.splitter.setSizes([300, 500])  # Initial sizes
+        self.splitter.setSizes([1, 3])  # Use relative sizes for better responsiveness
         
         # Add splitter to main layout
         self.main_layout.addWidget(self.splitter)
@@ -137,24 +168,46 @@ class MainWindow(QMainWindow):
         
         # Load initial history
         self.load_history()
+        
+        # Set up responsive layout adjustments
+        self.adjustLayoutForWindowSize()
     
     def create_toolbar(self):
-        """Create the application toolbar."""
+        """Create the application toolbar with proper icons and branding."""
         toolbar = QToolBar("Main Toolbar")
-        toolbar.setIconSize(QSize(16, 16))
+        toolbar.setIconSize(QSize(20, 20))
+        toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.addToolBar(toolbar)
         
-        # Clear history action
-        clear_action = QAction("Clear History", self)
+        # Clear history action with icon
+        clear_icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "clear_icon.svg")
+        clear_action = QAction("🗑️ Clear History", self)
+        if os.path.exists(clear_icon_path):
+            clear_action.setIcon(QIcon(clear_icon_path))
+        clear_action.setToolTip("Clear all clipboard history")
         clear_action.triggered.connect(self.clear_history)
         toolbar.addAction(clear_action)
         
         toolbar.addSeparator()
         
-        # Settings action (placeholder)
-        settings_action = QAction("Settings", self)
+        # Settings action with icon
+        settings_icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "settings_icon.svg")
+        settings_action = QAction("⚙️ Settings", self)
+        if os.path.exists(settings_icon_path):
+            settings_action.setIcon(QIcon(settings_icon_path))
+        settings_action.setToolTip("Open application settings")
         settings_action.triggered.connect(self.show_settings)
         toolbar.addAction(settings_action)
+        
+        # Add stretch to push items to the left
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        toolbar.addWidget(spacer)
+        
+        # Add branding label
+        branding_label = QLabel("Clipboard Viewer v1.0")
+        branding_label.setStyleSheet("color: #6C757D; font-size: 12px; margin-right: 10px;")
+        toolbar.addWidget(branding_label)
     
     def setup_system_tray(self):
         """Setup the system tray icon and menu."""
@@ -179,9 +232,11 @@ class MainWindow(QMainWindow):
         self.tray_icon.setContextMenu(tray_menu)
         self.tray_icon.activated.connect(self.tray_icon_activated)
         
-        # Placeholder icon - replace with actual icon
-        # self.tray_icon.setIcon(QIcon("assets/icons/app_icon.svg"))
-        # self.tray_icon.show()
+        # Set system tray icon
+        app_icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "app_icon.svg")
+        if os.path.exists(app_icon_path):
+            self.tray_icon.setIcon(QIcon(app_icon_path))
+            self.tray_icon.show()
     
     def tray_icon_activated(self, reason):
         """Handle tray icon activation."""
@@ -241,8 +296,45 @@ class MainWindow(QMainWindow):
         # Always add to the original list
         self.original_clipboard_history.insert(0, new_item)
         
-        # Update status
-        self.status_bar.showMessage(f"New clipboard content: {item.data_type}")
+        # Update status with session statistics
+        session_stats = self.notification_manager.get_session_summary()
+        self.status_bar.showMessage(
+            f"New {item.data_type} content | Session: {session_stats['total_items']} items "
+            f"(📝 {session_stats['text_items']} | 🖼️ {session_stats['image_items']} | 📁 {session_stats['file_items']}) "
+            f"| Duration: {session_stats['session_duration']}"
+        )
+        
+        # Show notification for new clipboard content
+        content_preview = ""
+        if item.data_type == "text":
+            content_preview = item.content[:50] + "..." if len(item.content) > 50 else item.content
+        elif item.data_type == "image":
+            content_preview = "Image captured"
+        elif item.data_type == "files":
+            file_count = len(item.content)
+            content_preview = f"{file_count} file{'s' if file_count > 1 else ''} copied"
+        else:
+            content_preview = "Unknown content type"
+        
+        self.notification_manager.show_clipboard_notification(
+            f"📋 New {item.data_type.title()} Copied",
+            content_preview,
+            "info"
+        )
+        
+        # Also show enhanced toast notification with statistics
+        self.notification_manager.show_toast_notification(
+            f"📋 New {item.data_type.title()} Copied",
+            content_preview,
+            "info",
+            item.data_type
+        )
+        
+        # Also show system tray notification if enabled
+        self.notification_manager.show_system_tray_notification(
+            "Clipboard Viewer",
+            f"New {item.data_type} content copied"
+        )
     
     def on_item_selected(self, current, previous):
         """Handle selection of an item in the history list."""
@@ -274,7 +366,13 @@ class MainWindow(QMainWindow):
             pass
         
         self.status_bar.showMessage(f"Copied item back to clipboard")
-        # QMessageBox.information(self, "Clipboard", "Item copied to clipboard")
+        
+        # Show notification for copied item
+        self.notification_manager.show_clipboard_notification(
+            "📋 Item Copied",
+            "Item has been copied back to clipboard",
+            "success"
+        )
     
     def save_selected_item(self):
         """Save the selected clipboard item to a file."""
@@ -291,8 +389,22 @@ class MainWindow(QMainWindow):
                     with open(file_path, 'w', encoding='utf-8') as f:
                         f.write(current_item.content)
                     self.status_bar.showMessage(f"Saved to {file_path}")
+                    
+                    # Show success notification
+                    self.notification_manager.show_clipboard_notification(
+                        "💾 File Saved",
+                        f"Text saved to {os.path.basename(file_path)}",
+                        "success"
+                    )
                 except Exception as e:
                     QMessageBox.critical(self, "Error", f"Failed to save file: {e}")
+                    
+                    # Show error notification
+                    self.notification_manager.show_clipboard_notification(
+                        "❌ Save Failed",
+                        f"Failed to save file: {str(e)}",
+                        "error"
+                    )
                     
         elif current_item.data_type == "image" and current_item.content:
             file_path, _ = QFileDialog.getSaveFileName(
@@ -302,8 +414,22 @@ class MainWindow(QMainWindow):
                 try:
                     current_item.content.save(file_path)
                     self.status_bar.showMessage(f"Saved to {file_path}")
+                    
+                    # Show success notification
+                    self.notification_manager.show_clipboard_notification(
+                        "💾 Image Saved",
+                        f"Image saved to {os.path.basename(file_path)}",
+                        "success"
+                    )
                 except Exception as e:
                     QMessageBox.critical(self, "Error", f"Failed to save file: {e}")
+                    
+                    # Show error notification
+                    self.notification_manager.show_clipboard_notification(
+                        "❌ Save Failed",
+                        f"Failed to save image: {str(e)}",
+                        "error"
+                    )
     
     def clear_history(self):
         """Clear the clipboard history."""
@@ -328,6 +454,13 @@ class MainWindow(QMainWindow):
             self.load_history()
             
             self.status_bar.showMessage("Clipboard history cleared")
+            
+            # Show notification for cleared history
+            self.notification_manager.show_clipboard_notification(
+                "🗑️ History Cleared",
+                "All clipboard history has been cleared",
+                "warning"
+            )
     
     def show_settings(self):
         """Show the settings dialog and re-apply theme if changed."""
@@ -363,28 +496,53 @@ class MainWindow(QMainWindow):
             app.setStyleSheet("")
     
     def on_search_text_changed(self, text):
-        """Handle search text changes and filter the history list."""
-        if text:
-            self.clear_search_button.setEnabled(True)
-            self.filter_history_list(text)
+        """Handle search text changes with debounced search."""
+        self.current_search_text = text
+        self.search_timer.stop()
+        
+        if text.strip():
+            # Debounce search - wait 300ms after user stops typing
+            self.search_timer.start(300)
         else:
-            self.clear_search_button.setEnabled(False)
-            self.load_history()  # Reload all history items
+            self.load_history()  # Reload all history items immediately if search is cleared
+    
+    def on_search_filter_changed(self, filter_type):
+        """Handle search filter changes."""
+        self.current_search_type = filter_type
+        self.perform_search()
+    
+    def perform_search(self):
+        """Perform the actual search with current parameters."""
+        if self.current_search_text.strip():
+            self.filter_history_list(self.current_search_text, self.current_search_type)
+        else:
+            self.load_history()
     
     def clear_search(self):
         """Clear the search input and reload all history items."""
         self.search_input.clear()
-        self.clear_search_button.setEnabled(False)
+        self.search_type_filter.setCurrentText("All Types")
+        self.current_search_text = ""
+        self.current_search_type = "All Types"
         self.load_history()
     
-    def filter_history_list(self, search_text):
-        """Filter the history list based on the search text."""
+    def filter_history_list(self, search_text, filter_type="All Types"):
+        """Filter the history list based on the search text and type filter."""
         # Clear current history list
         self.history_list.clear()
         self.clipboard_history.clear()
         
+        # Convert filter type to data type
+        data_type_filter = None
+        if filter_type == "Text":
+            data_type_filter = "text"
+        elif filter_type == "Images":
+            data_type_filter = "image"
+        elif filter_type == "Files":
+            data_type_filter = "files"
+        
         # Get filtered items from history manager
-        items = self.history_manager.search_items(search_text, limit=100)
+        items = self.history_manager.search_items(search_text, data_type_filter, limit=100)
         
         # Add items to history list
         for item in items:
@@ -395,11 +553,54 @@ class MainWindow(QMainWindow):
             self.history_list.addItem(list_item)
             self.clipboard_history.append(list_item)
         
-        # Update status
-        self.status_bar.showMessage(f"Found {len(items)} items matching '{search_text}'")
+        # Update status with more detailed information
+        filter_text = f" ({filter_type.lower()})" if filter_type != "All Types" else ""
+        self.status_bar.showMessage(f"Found {len(items)} items matching '{search_text}'{filter_text}")
+        
+        # Show notification for search results
+        if len(items) == 0:
+            self.notification_manager.show_clipboard_notification(
+                "🔍 No Results",
+                f"No items found matching '{search_text}'",
+                "warning"
+            )
+        else:
+            self.notification_manager.show_clipboard_notification(
+                "🔍 Search Results",
+                f"Found {len(items)} items matching '{search_text}'",
+                "info"
+            )
+    
+    def resizeEvent(self, event):
+        """Handle window resize for responsive layout."""
+        super().resizeEvent(event)
+        self.adjustLayoutForWindowSize()
+        
+    def adjustLayoutForWindowSize(self):
+        """Adjust layout based on window size for responsive design."""
+        current_size = self.size()
+        
+        # Switch to vertical layout for narrow windows
+        if current_size.width() < 800:
+            self.splitter.setOrientation(Qt.Orientation.Vertical)
+            self.splitter.setSizes([1, 2])  # Top smaller, bottom larger
+        else:
+            self.splitter.setOrientation(Qt.Orientation.Horizontal)
+            self.splitter.setSizes([1, 3])  # Left smaller, right larger
+        
+        # Adjust search layout for very narrow windows
+        if current_size.width() < 600:
+            # Stack search elements vertically
+            self.search_layout.setDirection(QHBoxLayout.Direction.TopToBottom)
+        else:
+            # Keep search elements horizontal
+            self.search_layout.setDirection(QHBoxLayout.Direction.LeftToRight)
     
     def closeEvent(self, event):
         """Handle window close event."""
+        # Clear all notifications
+        self.notification_manager.clear_all_notifications()
+        
         # Minimize to tray instead of closing
         if self.tray_icon.isVisible():
             QMessageBox.information(
