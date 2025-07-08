@@ -114,7 +114,7 @@ class ToastNotification(QWidget):
         # Icon based on notification type
         icon_label = QLabel()
         icon_label.setFixedSize(20, 20)
-        icon_label.setAlignment(self.alignment().AlignCenter)
+        icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         
         if self.notification_type == "success":
             icon_label.setText("✅")
