@@ -107,11 +107,41 @@ class NotificationManager(QObject):
             return
             
         parent_rect = self.parent_widget.geometry()
-        x = parent_rect.right() - 320  # 20px margin + 300px width
-        y = parent_rect.top() + 50  # Start from top
+        parent_width = parent_rect.width()
+        
+        # Responsive notification positioning
+        if parent_width < 768:  # Mobile/tablet
+            notification_width = min(300, parent_width - 40)
+            x = parent_rect.left() + (parent_width - notification_width) // 2  # Center horizontally
+            y = parent_rect.top() + 10  # Small top margin
+            spacing = 60  # Smaller spacing for mobile
+        else:  # Desktop
+            notification_width = 320
+            x = parent_rect.right() - notification_width - 20  # Right side with margin
+            y = parent_rect.top() + 50  # Standard top margin
+            spacing = 70  # Standard spacing
         
         for i, notification in enumerate(self.notifications):
-            notification.move(x, y + i * 70)  # 70px spacing between notifications
+            notification.move(x, y + i * spacing)
+            # Adjust notification width if needed
+            if hasattr(notification, 'setFixedWidth'):
+                notification.setFixedWidth(notification_width)
+    
+    def adjust_for_window_size(self, width, height):
+        """Adjust notification settings based on window size."""
+        # Adjust notification duration based on screen size
+        if width < 600:
+            self.notification_duration = 4000  # Longer duration for small screens
+            self.max_notifications = 3  # Fewer notifications on small screens
+        elif width < 1024:
+            self.notification_duration = 3500  # Medium duration
+            self.max_notifications = 4
+        else:
+            self.notification_duration = 3000  # Standard duration
+            self.max_notifications = 5
+        
+        # Reposition existing notifications
+        self._position_notifications()
     
     def _remove_notification(self, toast):
         """Remove a toast notification."""
