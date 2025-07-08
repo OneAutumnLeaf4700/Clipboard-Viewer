@@ -12,6 +12,9 @@ from utils.system_tray import SystemTrayManager
 from utils.hotkeys import HotkeyManager
 from utils.clipboard_utils import get_clipboard_data
 
+# Create data directory if it doesn't exist (before logging setup)
+os.makedirs('data', exist_ok=True)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -28,9 +31,6 @@ logger = logging.getLogger('ClipboardViewer')
 
 def main():
     logger.info("Clipboard Viewer started.")
-    
-    # Create data directory if it doesn't exist
-    os.makedirs('data', exist_ok=True)
     
     # Initialize QApplication
     app = QApplication(sys.argv)
