@@ -315,3 +315,18 @@ S...
 2025-07-08 22:28:05,284 - ClipboardMonitor - INFO - Starting clipboard monitoring
 2025-07-08 22:28:06,315 - HistoryManager - INFO - Added new text item to history
 2025-07-08 22:28:06,315 - ClipboardMonitor - INFO - New clipboard content (text): Analyse my project. Help me draft some improvements. Before u make any improvements, i want u to ens...
+2025-07-08 22:43:09,093 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:43:09,124 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:44:22,346 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:44:22,408 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:44:22,740 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:45:02,773 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:45:02,800 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:45:03,053 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:45:04,101 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:45:04,101 - ClipboardMonitor - INFO - New clipboard content (text): feature/responsive-design-improvements...
+2025-07-08 22:51:34,633 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 22:51:34,663 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 22:51:34,892 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 22:51:35,951 - HistoryManager - INFO - Added new text item to history
+2025-07-08 22:51:35,951 - ClipboardMonitor - INFO - New clipboard content (text): feature/responsive-design-improvements...
