@@ -245,3 +245,8 @@ Traceback (most recent call last):
 2025-06-22 18:33:29,391 - HotkeyManager - INFO - Unregistered all hotkeys
 2025-06-22 18:33:29,532 - HotkeyManager - INFO - Registered hotkey 'toggle_window': Ctrl+Shift+V
 2025-06-22 18:33:29,533 - HotkeyManager - INFO - Registered hotkey 'copy_last_item': Ctrl+Shift+C
+2025-07-08 21:42:24,839 - ClipboardViewer - INFO - Clipboard Viewer started.
+2025-07-08 21:42:24,901 - HistoryManager - INFO - Database initialized at data/clipboard_history.db
+2025-07-08 21:42:24,975 - ClipboardMonitor - INFO - Starting clipboard monitoring
+2025-07-08 21:42:25,985 - HistoryManager - INFO - Added new text item to history
+2025-07-08 21:42:25,985 - ClipboardMonitor - INFO - New clipboard content (text): https://demonicscans.org/manga/Make-the-Exorcist-Fall-in-Love...

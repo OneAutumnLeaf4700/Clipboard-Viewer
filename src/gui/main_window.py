@@ -62,6 +62,8 @@ class MainWindow(QMainWindow):
         self.clipboard_history = []
         self.original_clipboard_history = []
         self.last_clipboard_content = None
+        self.current_search_text = ""
+        self.current_search_type = "All Types"
         
         # Initialize hotkey manager
         self.hotkey_manager = HotkeyManager()
@@ -85,19 +87,30 @@ class MainWindow(QMainWindow):
         self.history_header = QLabel("Clipboard History")
         self.history_header.setFont(QFont("Arial", 12, QFont.Weight.Bold))
         
-        # Add search bar
+        # Add enhanced search bar
         self.search_layout = QHBoxLayout()
-        from PyQt6.QtWidgets import QLineEdit
+        from PyQt6.QtWidgets import QLineEdit, QComboBox, QDateEdit
+        from PyQt6.QtCore import QDate
+        
+        # Search input with improved styling
         self.search_input = QLineEdit()
-        self.search_input.setPlaceholderText("Search clipboard history...")
+        self.search_input.setPlaceholderText("🔍 Search clipboard history...")
+        self.search_input.setClearButtonEnabled(True)
         self.search_input.textChanged.connect(self.on_search_text_changed)
         
-        self.clear_search_button = QPushButton("Clear")
-        self.clear_search_button.clicked.connect(self.clear_search)
-        self.clear_search_button.setEnabled(False)
+        # Search type filter
+        self.search_type_filter = QComboBox()
+        self.search_type_filter.addItems(["All Types", "Text", "Images", "Files"])
+        self.search_type_filter.currentTextChanged.connect(self.on_search_filter_changed)
+        self.search_type_filter.setToolTip("Filter by content type")
+        
+        # Search debounce timer
+        self.search_timer = QTimer()
+        self.search_timer.setSingleShot(True)
+        self.search_timer.timeout.connect(self.perform_search)
         
         self.search_layout.addWidget(self.search_input)
-        self.search_layout.addWidget(self.clear_search_button)
+        self.search_layout.addWidget(self.search_type_filter)
         
         self.history_list = QListWidget()
         self.history_list.setAlternatingRowColors(True)
@@ -363,28 +376,53 @@ class MainWindow(QMainWindow):
             app.setStyleSheet("")
     
     def on_search_text_changed(self, text):
-        """Handle search text changes and filter the history list."""
-        if text:
-            self.clear_search_button.setEnabled(True)
-            self.filter_history_list(text)
+        """Handle search text changes with debounced search."""
+        self.current_search_text = text
+        self.search_timer.stop()
+        
+        if text.strip():
+            # Debounce search - wait 300ms after user stops typing
+            self.search_timer.start(300)
         else:
-            self.clear_search_button.setEnabled(False)
-            self.load_history()  # Reload all history items
+            self.load_history()  # Reload all history items immediately if search is cleared
+    
+    def on_search_filter_changed(self, filter_type):
+        """Handle search filter changes."""
+        self.current_search_type = filter_type
+        self.perform_search()
+    
+    def perform_search(self):
+        """Perform the actual search with current parameters."""
+        if self.current_search_text.strip():
+            self.filter_history_list(self.current_search_text, self.current_search_type)
+        else:
+            self.load_history()
     
     def clear_search(self):
         """Clear the search input and reload all history items."""
         self.search_input.clear()
-        self.clear_search_button.setEnabled(False)
+        self.search_type_filter.setCurrentText("All Types")
+        self.current_search_text = ""
+        self.current_search_type = "All Types"
         self.load_history()
     
-    def filter_history_list(self, search_text):
-        """Filter the history list based on the search text."""
+    def filter_history_list(self, search_text, filter_type="All Types"):
+        """Filter the history list based on the search text and type filter."""
         # Clear current history list
         self.history_list.clear()
         self.clipboard_history.clear()
         
+        # Convert filter type to data type
+        data_type_filter = None
+        if filter_type == "Text":
+            data_type_filter = "text"
+        elif filter_type == "Images":
+            data_type_filter = "image"
+        elif filter_type == "Files":
+            data_type_filter = "files"
+        
         # Get filtered items from history manager
-        items = self.history_manager.search_items(search_text, limit=100)
+        items = self.history_manager.search_items(search_text, data_type_filter, limit=100)
         
         # Add items to history list
         for item in items:
@@ -395,8 +433,9 @@ class MainWindow(QMainWindow):
             self.history_list.addItem(list_item)
             self.clipboard_history.append(list_item)
         
-        # Update status
-        self.status_bar.showMessage(f"Found {len(items)} items matching '{search_text}'")
+        # Update status with more detailed information
+        filter_text = f" ({filter_type.lower()})" if filter_type != "All Types" else ""
+        self.status_bar.showMessage(f"Found {len(items)} items matching '{search_text}'{filter_text}")
     
     def closeEvent(self, event):
         """Handle window close event."""
