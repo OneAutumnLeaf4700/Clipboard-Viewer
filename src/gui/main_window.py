@@ -579,22 +579,98 @@ class MainWindow(QMainWindow):
     def adjustLayoutForWindowSize(self):
         """Adjust layout based on window size for responsive design."""
         current_size = self.size()
+        width = current_size.width()
+        height = current_size.height()
         
-        # Switch to vertical layout for narrow windows
-        if current_size.width() < 800:
+        # Define responsive breakpoints
+        breakpoints = {
+            'mobile': 480,
+            'tablet': 768,
+            'desktop': 1024,
+            'large': 1440
+        }
+        
+        # Adjust splitter orientation and sizes
+        if width < breakpoints['tablet']:
+            # Mobile and small tablet view
             self.splitter.setOrientation(Qt.Orientation.Vertical)
-            self.splitter.setSizes([1, 2])  # Top smaller, bottom larger
-        else:
+            self.splitter.setSizes([1, 2])  # History smaller, preview larger
+        elif width < breakpoints['desktop']:
+            # Large tablet view
             self.splitter.setOrientation(Qt.Orientation.Horizontal)
-            self.splitter.setSizes([1, 3])  # Left smaller, right larger
-        
-        # Adjust search layout for very narrow windows
-        if current_size.width() < 600:
-            # Stack search elements vertically
-            self.search_layout.setDirection(QHBoxLayout.Direction.TopToBottom)
+            self.splitter.setSizes([2, 3])  # More balanced split
         else:
-            # Keep search elements horizontal
+            # Desktop view
+            self.splitter.setOrientation(Qt.Orientation.Horizontal)
+            self.splitter.setSizes([1, 3])  # Traditional split
+        
+        # Adjust search layout responsively
+        if width < breakpoints['mobile']:
+            # Stack search elements vertically for very small screens
+            self.search_layout.setDirection(QHBoxLayout.Direction.TopToBottom)
+            self.search_input.setMinimumWidth(200)
+            self.search_type_filter.setMinimumWidth(120)
+        elif width < breakpoints['tablet']:
+            # Horizontal but with minimum widths
             self.search_layout.setDirection(QHBoxLayout.Direction.LeftToRight)
+            self.search_input.setMinimumWidth(150)
+            self.search_type_filter.setMinimumWidth(100)
+        else:
+            # Normal horizontal layout
+            self.search_layout.setDirection(QHBoxLayout.Direction.LeftToRight)
+            self.search_input.setMinimumWidth(200)
+            self.search_type_filter.setMinimumWidth(120)
+        
+        # Adjust toolbar based on window size
+        self.adjustToolbarForWindowSize(width)
+        
+        # Adjust font sizes based on window size
+        self.adjustFontSizesForWindowSize(width)
+        
+        # Adjust notification positioning for responsive design
+        self.adjustNotificationPositioning(width, height)
+    
+    def adjustToolbarForWindowSize(self, width):
+        """Adjust toolbar layout for different window sizes."""
+        toolbar = self.findChild(QToolBar)
+        if not toolbar:
+            return
+            
+        if width < 600:
+            # Very small screens - icon only
+            toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
+            toolbar.setIconSize(QSize(16, 16))
+        elif width < 800:
+            # Small screens - smaller icons with text
+            toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            toolbar.setIconSize(QSize(16, 16))
+        else:
+            # Normal screens - full size
+            toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            toolbar.setIconSize(QSize(20, 20))
+    
+    def adjustFontSizesForWindowSize(self, width):
+        """Adjust font sizes based on window size for better readability."""
+        if width < 600:
+            # Small screens - smaller fonts
+            self.history_header.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+            self.search_input.setFont(QFont("Arial", 9))
+            self.search_type_filter.setFont(QFont("Arial", 9))
+        elif width < 800:
+            # Medium screens - medium fonts
+            self.history_header.setFont(QFont("Arial", 11, QFont.Weight.Bold))
+            self.search_input.setFont(QFont("Arial", 10))
+            self.search_type_filter.setFont(QFont("Arial", 10))
+        else:
+            # Large screens - normal fonts
+            self.history_header.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+            self.search_input.setFont(QFont("Arial", 11))
+            self.search_type_filter.setFont(QFont("Arial", 11))
+    
+    def adjustNotificationPositioning(self, width, height):
+        """Adjust notification positioning based on window size."""
+        if hasattr(self, 'notification_manager'):
+            self.notification_manager.adjust_for_window_size(width, height)
     
     def closeEvent(self, event):
         """Handle window close event."""

@@ -70,6 +70,9 @@ class PreviewWidget(QWidget):
         self.layout.addWidget(self.scroll_area, 1)  # Give scroll area a stretch factor
         self.layout.addLayout(self.button_layout)
         
+        # Setup responsive adjustments
+        self.adjustForWindowSize()
+        
         # Hide all preview widgets initially
         self.clear_preview()
         
@@ -135,6 +138,31 @@ class PreviewWidget(QWidget):
         self.unknown_layout.addWidget(self.unknown_preview)
         self.content_layout.addWidget(self.unknown_container)
         
+    def adjustForWindowSize(self):
+        """Adjust widget sizes based on the current window size."""
+        current_size = self.size()
+        width = current_size.width()
+        
+        # Responsive adjustments for preview components
+        if width < 480:
+            # Very small screens
+            self.header_label.setFont(QFont("Arial", 10))
+            self.button_layout.setDirection(QHBoxLayout.Direction.TopToBottom)
+            self.copy_button.setMinimumWidth(80)
+            self.save_button.setMinimumWidth(80)
+        elif width < 768:
+            # Small to medium screens
+            self.header_label.setFont(QFont("Arial", 11))
+            self.button_layout.setDirection(QHBoxLayout.Direction.LeftToRight)
+            self.copy_button.setMinimumWidth(100)
+            self.save_button.setMinimumWidth(100)
+        else:
+            # Large screens
+            self.header_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+            self.button_layout.setDirection(QHBoxLayout.Direction.LeftToRight)
+            self.copy_button.setMinimumWidth(120)
+            self.save_button.setMinimumWidth(120)
+    
     def clear_preview(self):
         """Clear and hide all preview widgets."""
         self.current_item = None
@@ -221,6 +249,11 @@ class PreviewWidget(QWidget):
         """Handle save button click."""
         if self.current_item:
             self.save_requested.emit(self.current_item)
+    
+    def resizeEvent(self, event):
+        """Handle window resize for responsive adjustments."""
+        super().resizeEvent(event)
+        self.adjustForWindowSize()
     
     def save_item_to_file(self, item):
         """Save the current item to a file."""
