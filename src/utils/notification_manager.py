@@ -2,7 +2,7 @@ import os
 import logging
 from datetime import datetime
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGraphicsOpacityEffect, QApplication
-from PyQt6.QtCore import QTimer, QPropertyAnimation, QEasingCurve, QRect, pyqtSignal, QObject
+from PyQt6.QtCore import QTimer, QPropertyAnimation, QEasingCurve, QRect, pyqtSignal, QObject, Qt
 from PyQt6.QtGui import QFont, QPalette, QColor
 
 class NotificationManager(QObject):
@@ -100,7 +100,7 @@ class ToastNotification(QWidget):
                            self.windowType().WindowStaysOnTopHint | 
                            self.windowType().FramelessWindowHint)
         
-        self.setAttribute(self.widgetAttribute().WA_TranslucentBackground)
+        self.setAttribute(Qt.WA_TranslucentBackground)
         
         self.notification_type = notification_type
         self.setup_ui(title, message)
