@@ -100,7 +100,7 @@ class ToastNotification(QWidget):
                            self.windowType().WindowStaysOnTopHint | 
                            self.windowType().FramelessWindowHint)
         
-        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         
         self.notification_type = notification_type
         self.setup_ui(title, message)
