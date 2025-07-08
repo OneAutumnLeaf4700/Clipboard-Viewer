@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#4A90E2" stroke="#357ABD" stroke-width="2"/>
+  
+  <!-- Clipboard base -->
+  <rect x="18" y="12" width="28" height="36" rx="3" fill="#F5F5F5" stroke="#DDD" stroke-width="1"/>
+  
+  <!-- Clipboard clip -->
+  <rect x="26" y="8" width="12" height="8" rx="2" fill="#666" stroke="#555" stroke-width="1"/>
+  
+  <!-- Text lines -->
+  <line x1="24" y1="22" x2="40" y2="22" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+  <line x1="24" y1="28" x2="36" y2="28" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+  <line x1="24" y1="34" x2="38" y2="34" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+  <line x1="24" y1="40" x2="34" y2="40" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+  
+  <!-- History indicator -->
+  <circle cx="48" cy="48" r="8" fill="#FF6B6B" stroke="#E74C3C" stroke-width="1"/>
+  <text x="48" y="52" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="white">H</text>
+</svg>

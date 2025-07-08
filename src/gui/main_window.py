@@ -4,7 +4,7 @@ from datetime import datetime
 from PyQt6.QtWidgets import (QMainWindow, QApplication, QSplitter, QListWidget, 
                             QListWidgetItem, QVBoxLayout, QHBoxLayout, QWidget, 
                             QLabel, QPushButton, QMenu, QSystemTrayIcon, 
-                            QMessageBox, QFrame, QToolBar, QStatusBar, QFileDialog, QDialog)
+                            QMessageBox, QFrame, QToolBar, QStatusBar, QFileDialog, QDialog, QSizePolicy)
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QFont, QCursor
 from PyQt6.QtCore import Qt, QSize, pyqtSignal, QTimer, QSettings
 
@@ -23,22 +23,22 @@ class ClipboardListItem(QListWidgetItem):
         self.content = content
         self.timestamp = timestamp or datetime.now()
         
-        # Set display text based on data type
+        # Set display text based on data type with proper icon paths
         if data_type == "text":
             display_text = content[:50] + "..." if len(content) > 50 else content
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - {display_text}")
-            self.setIcon(QIcon("assets/icons/text_icon.svg"))  # Placeholder for actual icon path
+            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "text_icon.svg")))
         elif data_type == "image":
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - [Image]")
-            self.setIcon(QIcon("assets/icons/image_icon.svg"))  # Placeholder for actual icon path
+            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "image_icon.svg")))
         elif data_type == "files":
             file_count = len(content)
             file_text = f"{file_count} file{'s' if file_count > 1 else ''}"
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - {file_text}")
-            self.setIcon(QIcon("assets/icons/file_icon.svg"))  # Placeholder for actual icon path
+            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "file_icon.svg")))
         else:
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - [Unknown format]")
-            self.setIcon(QIcon("assets/icons/unknown_icon.svg"))  # Placeholder for actual icon path
+            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "unknown_icon.svg")))
 
 
 class MainWindow(QMainWindow):
@@ -50,10 +50,15 @@ class MainWindow(QMainWindow):
     def __init__(self, history_manager, clipboard_monitor):
         super().__init__()
         
-        # Window setup with responsive design
-        self.setWindowTitle("Clipboard Viewer")
+        # Window setup with responsive design and branding
+        self.setWindowTitle("📋 Clipboard Viewer")
         self.setMinimumSize(600, 400)  # Reduced minimum size for better responsiveness
         self.resize(1000, 700)  # Default size
+        
+        # Set application icon
+        app_icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "app_icon.svg")
+        if os.path.exists(app_icon_path):
+            self.setWindowIcon(QIcon(app_icon_path))
         
         # Track window size for responsive adjustments
         self.last_window_size = self.size()
@@ -164,22 +169,41 @@ class MainWindow(QMainWindow):
         self.adjustLayoutForWindowSize()
     
     def create_toolbar(self):
-        """Create the application toolbar."""
+        """Create the application toolbar with proper icons and branding."""
         toolbar = QToolBar("Main Toolbar")
-        toolbar.setIconSize(QSize(16, 16))
+        toolbar.setIconSize(QSize(20, 20))
+        toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         self.addToolBar(toolbar)
         
-        # Clear history action
-        clear_action = QAction("Clear History", self)
+        # Clear history action with icon
+        clear_icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "clear_icon.svg")
+        clear_action = QAction("🗑️ Clear History", self)
+        if os.path.exists(clear_icon_path):
+            clear_action.setIcon(QIcon(clear_icon_path))
+        clear_action.setToolTip("Clear all clipboard history")
         clear_action.triggered.connect(self.clear_history)
         toolbar.addAction(clear_action)
         
         toolbar.addSeparator()
         
-        # Settings action (placeholder)
-        settings_action = QAction("Settings", self)
+        # Settings action with icon
+        settings_icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "settings_icon.svg")
+        settings_action = QAction("⚙️ Settings", self)
+        if os.path.exists(settings_icon_path):
+            settings_action.setIcon(QIcon(settings_icon_path))
+        settings_action.setToolTip("Open application settings")
         settings_action.triggered.connect(self.show_settings)
         toolbar.addAction(settings_action)
+        
+        # Add stretch to push items to the left
+        spacer = QWidget()
+        spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        toolbar.addWidget(spacer)
+        
+        # Add branding label
+        branding_label = QLabel("Clipboard Viewer v1.0")
+        branding_label.setStyleSheet("color: #6C757D; font-size: 12px; margin-right: 10px;")
+        toolbar.addWidget(branding_label)
     
     def setup_system_tray(self):
         """Setup the system tray icon and menu."""
@@ -204,9 +228,11 @@ class MainWindow(QMainWindow):
         self.tray_icon.setContextMenu(tray_menu)
         self.tray_icon.activated.connect(self.tray_icon_activated)
         
-        # Placeholder icon - replace with actual icon
-        # self.tray_icon.setIcon(QIcon("assets/icons/app_icon.svg"))
-        # self.tray_icon.show()
+        # Set system tray icon
+        app_icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "app_icon.svg")
+        if os.path.exists(app_icon_path):
+            self.tray_icon.setIcon(QIcon(app_icon_path))
+            self.tray_icon.show()
     
     def tray_icon_activated(self, reason):
         """Handle tray icon activation."""
