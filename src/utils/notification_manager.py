@@ -20,6 +20,15 @@ class NotificationManager(QObject):
         self.show_system_tray_notifications = True
         self.notification_duration = 3000  # 3 seconds
         
+        # Statistics tracking
+        self.stats = {
+            'total_items': 0,
+            'text_items': 0,
+            'image_items': 0,
+            'file_items': 0,
+            'session_start': datetime.now()
+        }
+        
     def show_clipboard_notification(self, title, message, notification_type="info"):
         """Show a notification when clipboard content changes."""
         if not self.show_clipboard_notifications:
@@ -35,28 +44,62 @@ class NotificationManager(QObject):
         if hasattr(self.parent_widget, 'tray_icon') and self.parent_widget.tray_icon:
             self.parent_widget.tray_icon.showMessage(title, message, icon or self.parent_widget.tray_icon.MessageIcon.Information, self.notification_duration)
     
-    def show_toast_notification(self, title, message, notification_type="info"):
-        """Show a toast notification on screen."""
-        if not self.parent_widget:
-            return
-            
-        # Create toast notification
-        toast = ToastNotification(title, message, notification_type, self.parent_widget)
-        toast.show()
+def show_toast_notification(self, title, message, notification_type="info", content_type=None):
+    """Show a toast notification on screen with detailed information."""
+    if not self.parent_widget:
+        return
         
-        # Add to notifications list
-        self.notifications.append(toast)
+    # Update statistics based on content type
+    if content_type:
+        self.update_statistics(content_type)
+    
+    # Append statistics to message for clipboard notifications
+    if content_type:
+        message += f"\n📊 Session Stats: {self.stats['total_items']} items"
+        message += f"\n📝 Text: {self.stats['text_items']} | 🖼️ Images: {self.stats['image_items']} | 📁 Files: {self.stats['file_items']}"
+    
+    # Create toast notification
+    toast = ToastNotification(title, message, notification_type, self.parent_widget)
+    toast.show()
+    
+    # Add to notifications list
+    self.notifications.append(toast)
+    
+    # Remove old notifications if exceeding max
+    if len(self.notifications) > self.max_notifications:
+        old_toast = self.notifications.pop(0)
+        old_toast.close()
+    
+    # Position notifications
+    self._position_notifications()
+    
+    # Auto-remove after duration
+    QTimer.singleShot(self.notification_duration, lambda: self._remove_notification(toast))
+    
+    def update_statistics(self, content_type):
+        """Update the statistics based on content type."""
+        self.stats['total_items'] += 1
+        if content_type == 'text':
+            self.stats['text_items'] += 1
+        elif content_type == 'image':
+            self.stats['image_items'] += 1
+        elif content_type == 'files':
+            self.stats['file_items'] += 1
+    
+    def get_session_summary(self):
+        """Get a summary of the current session statistics."""
+        session_duration = datetime.now() - self.stats['session_start']
+        hours, remainder = divmod(session_duration.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
         
-        # Remove old notifications if exceeding max
-        if len(self.notifications) > self.max_notifications:
-            old_toast = self.notifications.pop(0)
-            old_toast.close()
-        
-        # Position notifications
-        self._position_notifications()
-        
-        # Auto-remove after duration
-        QTimer.singleShot(self.notification_duration, lambda: self._remove_notification(toast))
+        return {
+            'total_items': self.stats['total_items'],
+            'text_items': self.stats['text_items'],
+            'image_items': self.stats['image_items'],
+            'file_items': self.stats['file_items'],
+            'session_duration': f"{hours:02d}:{minutes:02d}:{seconds:02d}",
+            'avg_items_per_minute': round(self.stats['total_items'] / max(session_duration.seconds / 60, 1), 1)
+        }
     
     def _position_notifications(self):
         """Position toast notifications on screen."""
@@ -95,7 +138,13 @@ class ToastNotification(QWidget):
     def __init__(self, title, message, notification_type="info", parent=None):
         super().__init__(parent)
         self.setWindowTitle("Notification")
-        self.setFixedSize(300, 60)
+        
+        # Adjust size based on message length
+        line_count = message.count('\n') + 1
+        base_height = 60
+        extra_height = max(0, (line_count - 2) * 20)
+        self.setFixedSize(320, base_height + extra_height)
+        
         self.setWindowFlags(self.windowFlags() | 
                            self.windowType().WindowStaysOnTopHint | 
                            self.windowType().FramelessWindowHint)
