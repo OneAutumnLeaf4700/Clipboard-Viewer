@@ -13,6 +13,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.clipboard_utils import get_clipboard_data
 from gui.preview_widget import PreviewWidget
 from utils.hotkeys import HotkeyManager
+from utils.notification_manager import NotificationManager
 
 class ClipboardListItem(QListWidgetItem):
     """Custom list widget item to store clipboard data and its type."""
@@ -76,6 +77,9 @@ class MainWindow(QMainWindow):
         
         # Initialize hotkey manager
         self.hotkey_manager = HotkeyManager()
+        
+        # Initialize notification manager
+        self.notification_manager = NotificationManager(self)
         
         # Connect settings changed signal
         self.settings_changed.connect(self.update_hotkeys)
@@ -294,6 +298,30 @@ class MainWindow(QMainWindow):
         
         # Update status
         self.status_bar.showMessage(f"New clipboard content: {item.data_type}")
+        
+        # Show notification for new clipboard content
+        content_preview = ""
+        if item.data_type == "text":
+            content_preview = item.content[:50] + "..." if len(item.content) > 50 else item.content
+        elif item.data_type == "image":
+            content_preview = "Image captured"
+        elif item.data_type == "files":
+            file_count = len(item.content)
+            content_preview = f"{file_count} file{'s' if file_count > 1 else ''} copied"
+        else:
+            content_preview = "Unknown content type"
+        
+        self.notification_manager.show_clipboard_notification(
+            f"📋 New {item.data_type.title()} Copied",
+            content_preview,
+            "info"
+        )
+        
+        # Also show system tray notification if enabled
+        self.notification_manager.show_system_tray_notification(
+            "Clipboard Viewer",
+            f"New {item.data_type} content copied"
+        )
     
     def on_item_selected(self, current, previous):
         """Handle selection of an item in the history list."""
@@ -325,7 +353,13 @@ class MainWindow(QMainWindow):
             pass
         
         self.status_bar.showMessage(f"Copied item back to clipboard")
-        # QMessageBox.information(self, "Clipboard", "Item copied to clipboard")
+        
+        # Show notification for copied item
+        self.notification_manager.show_clipboard_notification(
+            "📋 Item Copied",
+            "Item has been copied back to clipboard",
+            "success"
+        )
     
     def save_selected_item(self):
         """Save the selected clipboard item to a file."""
@@ -342,8 +376,22 @@ class MainWindow(QMainWindow):
                     with open(file_path, 'w', encoding='utf-8') as f:
                         f.write(current_item.content)
                     self.status_bar.showMessage(f"Saved to {file_path}")
+                    
+                    # Show success notification
+                    self.notification_manager.show_clipboard_notification(
+                        "💾 File Saved",
+                        f"Text saved to {os.path.basename(file_path)}",
+                        "success"
+                    )
                 except Exception as e:
                     QMessageBox.critical(self, "Error", f"Failed to save file: {e}")
+                    
+                    # Show error notification
+                    self.notification_manager.show_clipboard_notification(
+                        "❌ Save Failed",
+                        f"Failed to save file: {str(e)}",
+                        "error"
+                    )
                     
         elif current_item.data_type == "image" and current_item.content:
             file_path, _ = QFileDialog.getSaveFileName(
@@ -353,8 +401,22 @@ class MainWindow(QMainWindow):
                 try:
                     current_item.content.save(file_path)
                     self.status_bar.showMessage(f"Saved to {file_path}")
+                    
+                    # Show success notification
+                    self.notification_manager.show_clipboard_notification(
+                        "💾 Image Saved",
+                        f"Image saved to {os.path.basename(file_path)}",
+                        "success"
+                    )
                 except Exception as e:
                     QMessageBox.critical(self, "Error", f"Failed to save file: {e}")
+                    
+                    # Show error notification
+                    self.notification_manager.show_clipboard_notification(
+                        "❌ Save Failed",
+                        f"Failed to save image: {str(e)}",
+                        "error"
+                    )
     
     def clear_history(self):
         """Clear the clipboard history."""
@@ -379,6 +441,13 @@ class MainWindow(QMainWindow):
             self.load_history()
             
             self.status_bar.showMessage("Clipboard history cleared")
+            
+            # Show notification for cleared history
+            self.notification_manager.show_clipboard_notification(
+                "🗑️ History Cleared",
+                "All clipboard history has been cleared",
+                "warning"
+            )
     
     def show_settings(self):
         """Show the settings dialog and re-apply theme if changed."""
@@ -474,6 +543,20 @@ class MainWindow(QMainWindow):
         # Update status with more detailed information
         filter_text = f" ({filter_type.lower()})" if filter_type != "All Types" else ""
         self.status_bar.showMessage(f"Found {len(items)} items matching '{search_text}'{filter_text}")
+        
+        # Show notification for search results
+        if len(items) == 0:
+            self.notification_manager.show_clipboard_notification(
+                "🔍 No Results",
+                f"No items found matching '{search_text}'",
+                "warning"
+            )
+        else:
+            self.notification_manager.show_clipboard_notification(
+                "🔍 Search Results",
+                f"Found {len(items)} items matching '{search_text}'",
+                "info"
+            )
     
     def resizeEvent(self, event):
         """Handle window resize for responsive layout."""
@@ -502,6 +585,9 @@ class MainWindow(QMainWindow):
     
     def closeEvent(self, event):
         """Handle window close event."""
+        # Clear all notifications
+        self.notification_manager.clear_all_notifications()
+        
         # Minimize to tray instead of closing
         if self.tray_icon.isVisible():
             QMessageBox.information(
