@@ -15,6 +15,10 @@ from gui.preview_widget import PreviewWidget
 from utils.hotkeys import HotkeyManager
 from utils.notification_manager import NotificationManager
 
+# Import material theme
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from gui.themes.material_theme import apply_material_theme_to_app, get_material_stylesheet
+
 class ClipboardListItem(QListWidgetItem):
     """Custom list widget item to store clipboard data and its type."""
     
@@ -53,14 +57,15 @@ class MainWindow(QMainWindow):
         
         # Window setup with responsive design and branding
         self.setWindowTitle("📋 Clipboard Viewer")
-        self.setMinimumSize(600, 400)  # Reduced minimum size for better responsiveness
-        self.resize(1000, 700)  # Default size
+        self.setMinimumSize(800, 600)  # Increased default size for more spacious layout
+        self.resize(1200, 800)  # Default size
         
         # Set application icon
         app_icon_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "app_icon.svg")
         if os.path.exists(app_icon_path):
             self.setWindowIcon(QIcon(app_icon_path))
         
+        # Material Design theme will be applied later
         # Track window size for responsive adjustments
         self.last_window_size = self.size()
         
@@ -138,6 +143,7 @@ class MainWindow(QMainWindow):
         
         # Add a clear filter button
         self.clear_filter_button = QPushButton("Clear Filter")
+        self.clear_filter_button.setProperty("type", "small")
         self.clear_filter_button.setToolTip("Clear all filters and show all items")
         self.clear_filter_button.clicked.connect(self.clear_all_filters)
         self.clear_filter_button.setMaximumWidth(100)
@@ -196,6 +202,13 @@ class MainWindow(QMainWindow):
         
         # Set up responsive layout adjustments
         self.adjustLayoutForWindowSize()
+        
+        # Apply Material Design theme to the entire application
+        from PyQt6.QtWidgets import QApplication
+        from gui.themes.material_theme import detect_system_theme
+        app = QApplication.instance()
+        system_theme = detect_system_theme()
+        apply_material_theme_to_app(app, system_theme)
     
     def create_toolbar(self):
         """Create the application toolbar with proper icons and branding."""
@@ -498,27 +511,17 @@ class MainWindow(QMainWindow):
         """Apply the selected theme from QSettings to the QApplication."""
         settings = QSettings()
         theme = settings.value("appearance/theme", "System")
-        app = QApplication.instance()
-        if theme == "Dark":
-            app.setStyleSheet("""
-                QWidget { background-color: #232629; color: #f0f0f0; }
-                QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QListWidget, QSpinBox, QCheckBox, QPushButton {
-                    background-color: #2c2f34; color: #f0f0f0; border: 1px solid #444; }
-                QMenuBar, QMenu { background-color: #232629; color: #f0f0f0; }
-                QToolBar, QStatusBar { background-color: #232629; color: #f0f0f0; }
-                QTabWidget::pane { background: #232629; }
-            """)
-        elif theme == "Light":
-            app.setStyleSheet("""
-                QWidget { background-color: #f6f6f6; color: #232629; }
-                QLineEdit, QTextEdit, QPlainTextEdit, QComboBox, QListWidget, QSpinBox, QCheckBox, QPushButton {
-                    background-color: #ffffff; color: #232629; border: 1px solid #ccc; }
-                QMenuBar, QMenu { background-color: #f6f6f6; color: #232629; }
-                QToolBar, QStatusBar { background-color: #f6f6f6; color: #232629; }
-                QTabWidget::pane { background: #f6f6f6; }
-            """)
+        
+        # Determine the actual theme to use
+        if theme == "System":
+            from gui.themes.material_theme import detect_system_theme
+            theme_type = detect_system_theme()
         else:
-            app.setStyleSheet("")
+            theme_type = theme.lower()
+        
+        # Apply the Material Design theme
+        app = QApplication.instance()
+        apply_material_theme_to_app(app, theme_type)
     
     def on_search_text_changed(self, text):
         """Handle search text changes with debounced search."""

@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QTabWidget,
                             QLabel, QPushButton, QSpinBox, QCheckBox, QComboBox,
                             QGroupBox, QFormLayout, QLineEdit, QWidget)
 from PyQt6.QtCore import Qt, QSettings
+# Material theme will be applied application-wide
 from PyQt6.QtGui import QKeyEvent
 import sys
 import os
@@ -93,11 +94,13 @@ class SettingsDialog(QDialog):
         # Create tab widget
         self.tab_widget = QTabWidget()
         
-        # Add tabs
+# Add tabs
         self.add_general_tab()
         self.add_appearance_tab()
         
         layout.addWidget(self.tab_widget)
+
+        # Material theme applied application-wide
         
         # Add buttons
         button_layout = QHBoxLayout()
@@ -189,6 +192,27 @@ class SettingsDialog(QDialog):
             pass  # Optionally, show a warning dialog
         # Save theme selection
         self.settings.setValue("appearance/theme", self.theme_combo.currentText())
+        # Apply the theme immediately
+        self.apply_theme_immediately()
         # Emit signal to notify main window of settings changes
         if self.parent():
             self.parent().settings_changed.emit()
+    
+    def apply_theme_immediately(self):
+        """Apply the selected theme immediately to the application"""
+        selected_theme = self.theme_combo.currentText()
+        
+        # Determine the actual theme to use
+        if selected_theme == "System":
+            # Import here to avoid circular import
+            sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            from gui.themes.material_theme import detect_system_theme, apply_material_theme_to_app
+            theme_type = detect_system_theme()
+        else:
+            theme_type = selected_theme.lower()
+        
+        # Apply the theme
+        from PyQt6.QtWidgets import QApplication
+        from gui.themes.material_theme import apply_material_theme_to_app
+        app = QApplication.instance()
+        apply_material_theme_to_app(app, theme_type)

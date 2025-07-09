@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                             QScrollArea, QSizePolicy, QMessageBox)
 from PyQt6.QtGui import QPixmap, QFont, QImage
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
+# Material theme will be applied application-wide
 
 class PreviewWidget(QWidget):
     """Widget for displaying previews of clipboard content."""
@@ -14,6 +15,7 @@ class PreviewWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.current_item = None
+        self.setProperty("class", "preview-area")
         self.setup_ui()
         
     def setup_ui(self):
@@ -69,6 +71,8 @@ class PreviewWidget(QWidget):
         self.layout.addWidget(self.header_label)
         self.layout.addWidget(self.scroll_area, 1)  # Give scroll area a stretch factor
         self.layout.addLayout(self.button_layout)
+
+        # Material theme applied application-wide
         
         # Setup responsive adjustments
         self.adjustForWindowSize()
