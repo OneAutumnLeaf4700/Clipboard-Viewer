@@ -5,8 +5,9 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PyQt6.QtGui import QPixmap, QFont, QImage
 from PyQt6.QtCore import Qt, QSize, pyqtSignal
 # Material theme will be applied application-wide
+from gui.components.animated_preview import AnimatedPreviewWidget, AnimatedContentWidget
 
-class PreviewWidget(QWidget):
+class PreviewWidget(AnimatedPreviewWidget):
     """Widget for displaying previews of clipboard content."""
     
     copy_requested = pyqtSignal(object)  # Signal emitted when copy button is clicked
@@ -25,7 +26,7 @@ class PreviewWidget(QWidget):
         
         # Header
         self.header_label = QLabel("Preview")
-        self.header_label.setFont(QFont("Arial", 12, QFont.Weight.Bold))
+        self.header_label.setProperty("class", "preview-header")
         
         # Create a scroll area for the content
         self.scroll_area = QScrollArea()
@@ -51,7 +52,9 @@ class PreviewWidget(QWidget):
         self.content_widget.setMinimumSize(200, 150)
         
         # Action buttons with responsive design
-        self.button_layout = QHBoxLayout()
+        self.button_container = QWidget()
+        self.button_container.setProperty("class", "preview-buttons")
+        self.button_layout = QHBoxLayout(self.button_container)
         
         self.copy_button = QPushButton("📋 Copy")
         self.copy_button.clicked.connect(self.on_copy_clicked)
@@ -70,7 +73,7 @@ class PreviewWidget(QWidget):
         # Add all components to main layout
         self.layout.addWidget(self.header_label)
         self.layout.addWidget(self.scroll_area, 1)  # Give scroll area a stretch factor
-        self.layout.addLayout(self.button_layout)
+        self.layout.addWidget(self.button_container)
 
         # Material theme applied application-wide
         
@@ -83,60 +86,63 @@ class PreviewWidget(QWidget):
     def setup_preview_widgets(self):
         """Set up the different preview widgets for various content types."""
         # Text preview
-        self.text_container = QWidget()
+        self.text_container = AnimatedContentWidget()
         self.text_layout = QVBoxLayout(self.text_container)
         
         self.text_type_label = QLabel("Text Content")
-        self.text_type_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+        self.text_type_label.setProperty("class", "preview-type")
         
         self.text_preview = QLabel()
         self.text_preview.setWordWrap(True)
         self.text_preview.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        self.text_preview.setFrameShape(QFrame.Shape.NoFrame)
         self.text_preview.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        self.text_preview.setProperty("class", "preview-text")
         
         self.text_layout.addWidget(self.text_type_label)
         self.text_layout.addWidget(self.text_preview)
         self.content_layout.addWidget(self.text_container)
         
         # Image preview
-        self.image_container = QWidget()
+        self.image_container = AnimatedContentWidget()
         self.image_layout = QVBoxLayout(self.image_container)
         
         self.image_type_label = QLabel("Image Content")
-        self.image_type_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+        self.image_type_label.setProperty("class", "preview-type")
         
         self.image_preview = QLabel()
         self.image_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_preview.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
+        self.image_preview.setProperty("class", "preview-image")
         
         self.image_layout.addWidget(self.image_type_label)
         self.image_layout.addWidget(self.image_preview)
         self.content_layout.addWidget(self.image_container)
         
         # File preview
-        self.file_container = QWidget()
+        self.file_container = AnimatedContentWidget()
         self.file_layout = QVBoxLayout(self.file_container)
         
         self.file_type_label = QLabel("File Paths")
-        self.file_type_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+        self.file_type_label.setProperty("class", "preview-type")
         
         self.file_preview = QListWidget()
         self.file_preview.setAlternatingRowColors(True)
+        self.file_preview.setProperty("class", "preview-files")
         
         self.file_layout.addWidget(self.file_type_label)
         self.file_layout.addWidget(self.file_preview)
         self.content_layout.addWidget(self.file_container)
         
         # Unknown format preview
-        self.unknown_container = QWidget()
+        self.unknown_container = AnimatedContentWidget()
         self.unknown_layout = QVBoxLayout(self.unknown_container)
         
         self.unknown_type_label = QLabel("Unknown Content")
-        self.unknown_type_label.setFont(QFont("Arial", 10, QFont.Weight.Bold))
+        self.unknown_type_label.setProperty("class", "preview-type")
         
         self.unknown_preview = QLabel("No preview available for this content type")
         self.unknown_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.unknown_preview.setProperty("class", "no-preview")
         
         self.unknown_layout.addWidget(self.unknown_type_label)
         self.unknown_layout.addWidget(self.unknown_preview)
@@ -182,6 +188,11 @@ class PreviewWidget(QWidget):
         self.image_preview.clear()
         self.file_preview.clear()
         
+        # Reset labels to default
+        self.text_type_label.setText("Text Content")
+        self.image_type_label.setText("Image Content")
+        self.file_type_label.setText("File Paths")
+        
         # Disable buttons
         self.copy_button.setEnabled(False)
         self.save_button.setEnabled(False)
@@ -200,6 +211,14 @@ class PreviewWidget(QWidget):
         
         # Show appropriate preview based on data type
         if item.data_type == "text":
+            # Check if text is a URL or special content
+            if item.content.startswith(('http://', 'https://', 'ftp://')):
+                self.text_type_label.setText("URL Content")
+            elif '\n' in item.content and len(item.content) > 100:
+                self.text_type_label.setText("Multi-line Text")
+            else:
+                self.text_type_label.setText("Text Content")
+            
             self.text_preview.setText(item.content)
             self.text_container.show()
             self.copy_button.setEnabled(True)
@@ -233,8 +252,34 @@ class PreviewWidget(QWidget):
             
         elif item.data_type == "files":
             self.file_preview.clear()
+            
+            # Check if any of the files are images and show image preview
+            image_files = []
+            other_files = []
+            
+            for file_path in item.content:
+                if self.is_image_file(file_path):
+                    image_files.append(file_path)
+                else:
+                    other_files.append(file_path)
+            
+            # If there are image files, show the first image in the image preview
+            if image_files:
+                self.show_image_file_preview(image_files[0])
+                # Also show the image container
+                self.image_container.show()
+            
+            # Show all files in the file list
             for file_path in item.content:
                 self.file_preview.addItem(file_path)
+            
+            # Update file type label with count and types
+            file_count = len(item.content)
+            if image_files:
+                self.file_type_label.setText(f"Files ({file_count} total, {len(image_files)} images)")
+            else:
+                self.file_type_label.setText(f"Files ({file_count} total)")
+            
             self.file_container.show()
             self.copy_button.setEnabled(True)
             self.save_button.setEnabled(False)  # Can't save file paths
@@ -243,6 +288,38 @@ class PreviewWidget(QWidget):
             self.unknown_container.show()
             self.copy_button.setEnabled(False)
             self.save_button.setEnabled(False)
+    
+    def is_image_file(self, file_path):
+        """Check if a file is an image based on its extension."""
+        image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.webp', '.svg', '.ico'}
+        return os.path.splitext(file_path.lower())[1] in image_extensions
+    
+    def show_image_file_preview(self, image_path):
+        """Show preview of an image file."""
+        try:
+            # Load the image file
+            pixmap = QPixmap(image_path)
+            
+            if not pixmap.isNull():
+                # Scale pixmap to fit the preview area while maintaining aspect ratio
+                scroll_size = self.scroll_area.size()
+                max_size = QSize(min(scroll_size.width() - 40, 600), 
+                               min(scroll_size.height() - 150, 400))
+                scaled_pixmap = pixmap.scaled(max_size, 
+                                             Qt.AspectRatioMode.KeepAspectRatio, 
+                                             Qt.TransformationMode.SmoothTransformation)
+                
+                self.image_preview.setPixmap(scaled_pixmap)
+                self.image_container.show()
+                
+                # Update the image type label to show it's a file
+                self.image_type_label.setText(f"Image File: {os.path.basename(image_path)}")
+            else:
+                self.image_container.hide()
+                
+        except Exception as e:
+            print(f"Error loading image file {image_path}: {e}")
+            self.image_container.hide()
     
     def on_copy_clicked(self):
         """Handle copy button click."""
