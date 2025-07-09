@@ -84,23 +84,23 @@ class ClipboardMonitor(QObject):
         try:
             win32clipboard.OpenClipboard()
             
-            if win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_UNICODETEXT) and self.monitor_text:
+            if win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_HDROP) and self.monitor_files:
+                # Handle file paths (check this first since copied files can also have image data)
+                files = win32clipboard.GetClipboardData(win32clipboard.CF_HDROP)
+                win32clipboard.CloseClipboard()
+                return "files", list(files)
+                
+            elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_UNICODETEXT) and self.monitor_text:
                 # Handle Unicode text data
                 data = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
                 win32clipboard.CloseClipboard()
                 return "text", data
                 
             elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_BITMAP) and self.monitor_images:
-                # Handle image data
+                # Handle image data (actual image content, not file paths)
                 win32clipboard.CloseClipboard()  # Close before using ImageGrab
                 image = ImageGrab.grabclipboard()
                 return "image", image
-                
-            elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_HDROP) and self.monitor_files:
-                # Handle file paths
-                files = win32clipboard.GetClipboardData(win32clipboard.CF_HDROP)
-                win32clipboard.CloseClipboard()
-                return "files", list(files)
                 
             else:
                 win32clipboard.CloseClipboard()

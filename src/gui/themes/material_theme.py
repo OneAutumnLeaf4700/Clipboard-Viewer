@@ -113,10 +113,92 @@ def get_material_stylesheet(theme_type="light"):
     /* Preview area with different background */
     QWidget[class="preview-area"] {{
         background-color: {theme.PREVIEW_SURFACE};
+        border-radius: 16px;
+        border: 2px solid {theme.SURFACE_VARIANT};
+        padding: 20px;
+        margin: 12px;
+        box-shadow: 0 4px 12px {theme.SHADOW_MEDIUM};
+    }}
+    
+    /* Preview content containers */
+    QWidget[class="preview-content"] {{
+        background-color: {theme.SURFACE};
         border-radius: 12px;
         border: 1px solid {theme.SURFACE_VARIANT};
         padding: 16px;
-        margin: 8px;
+        margin: 8px 0;
+    }}
+    
+    /* Preview header styling */
+    QLabel[class="preview-header"] {{
+        font-size: 18px;
+        font-weight: 700;
+        color: {theme.PRIMARY};
+        margin-bottom: 16px;
+        padding: 8px 0;
+        border-bottom: 2px solid {theme.PRIMARY};
+    }}
+    
+    /* Preview type labels */
+    QLabel[class="preview-type"] {{
+        font-size: 14px;
+        font-weight: 600;
+        color: {theme.SECONDARY};
+        margin-bottom: 8px;
+        padding: 4px 8px;
+        background-color: rgba(245, 124, 0, 0.1);
+        border-radius: 6px;
+    }}
+    
+    /* Preview text content */
+    QLabel[class="preview-text"] {{
+        font-size: 14px;
+        line-height: 1.5;
+        color: {theme.ON_SURFACE};
+        background-color: {theme.SURFACE};
+        border: 1px solid {theme.SURFACE_VARIANT};
+        border-radius: 8px;
+        padding: 12px;
+        margin: 8px 0;
+    }}
+    
+    /* Preview button container */
+    QWidget[class="preview-buttons"] {{
+        background-color: transparent;
+        border: none;
+        padding: 16px 0 0 0;
+        margin: 16px 0 0 0;
+        border-top: 1px solid {theme.SURFACE_VARIANT};
+    }}
+    
+    /* Preview image styling */
+    QLabel[class="preview-image"] {{
+        background-color: {theme.SURFACE};
+        border: 2px solid {theme.SURFACE_VARIANT};
+        border-radius: 8px;
+        padding: 8px;
+        margin: 8px 0;
+    }}
+    
+    /* Preview file list styling */
+    QListWidget[class="preview-files"] {{
+        background-color: {theme.SURFACE};
+        border: 1px solid {theme.SURFACE_VARIANT};
+        border-radius: 8px;
+        padding: 8px;
+        margin: 8px 0;
+    }}
+    
+    /* No preview message */
+    QLabel[class="no-preview"] {{
+        color: rgba(128, 128, 128, 0.8);
+        font-style: italic;
+        text-align: center;
+        padding: 40px;
+        background-color: {theme.SURFACE};
+        border: 1px dashed {theme.SURFACE_VARIANT};
+        border-radius: 8px;
+        margin: 8px 0;
     }}
     
     /* Buttons */
