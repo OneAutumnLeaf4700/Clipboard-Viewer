@@ -1,0 +1,15 @@
+[run]
+source = src
+branch = False
+omit =
+    src/main.py
+    src/gui/*
+    src/gui/**/*
+    src/utils/system_tray.py
+    src/utils/notification_manager.py
+    tests/*
+
+[report]
+show_missing = True
+skip_covered = False
+precision = 1

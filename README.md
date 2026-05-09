@@ -2,6 +2,7 @@
 
 > A lightweight Windows clipboard history manager with real-time monitoring, SQLite persistence, search, and system tray integration.
 
+[![Tests](https://github.com/OneAutumnLeaf4700/Clipboard-Viewer/actions/workflows/tests.yml/badge.svg)](https://github.com/OneAutumnLeaf4700/Clipboard-Viewer/actions/workflows/tests.yml)
 [![Build](https://github.com/OneAutumnLeaf4700/Clipboard-Viewer/actions/workflows/build.yml/badge.svg)](https://github.com/OneAutumnLeaf4700/Clipboard-Viewer/actions/workflows/build.yml)
 [![Latest Release](https://img.shields.io/github/v/release/OneAutumnLeaf4700/Clipboard-Viewer)](https://github.com/OneAutumnLeaf4700/Clipboard-Viewer/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)

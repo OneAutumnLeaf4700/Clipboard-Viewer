@@ -11,3 +11,10 @@ __pycache__/
 
 # User data (databases, logs, config)
 data/
+
+# Test / coverage artifacts
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
