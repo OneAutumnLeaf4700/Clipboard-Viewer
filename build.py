@@ -30,8 +30,9 @@ def create_spec_file():
 import sys
 from pathlib import Path
 
-# Get the current directory
-current_dir = Path(__file__).parent
+# SPECPATH is defined by PyInstaller as the directory containing this spec.
+# __file__ is not reliably set when PyInstaller exec()s the spec.
+current_dir = Path(SPECPATH)
 
 # Define data files to include
 datas = [
