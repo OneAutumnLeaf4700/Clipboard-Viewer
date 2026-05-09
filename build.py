@@ -153,8 +153,10 @@ def install_dependencies():
         'pynput>=1.7.6',
         'pillow>=9.0.0',
         'keyboard>=0.13.5',
-        'pywin32>=303',
     ]
+    
+    if sys.platform == 'win32':
+        dependencies.append('pywin32>=303')
     
     for dep in dependencies:
         print(f"Installing {dep}...")

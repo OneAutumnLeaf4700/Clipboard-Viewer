@@ -1,27 +1,46 @@
 import logging
-import win32clipboard
+import sys
 from PIL import ImageGrab
+from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import QMimeData
 
 def get_clipboard_data():
-    """Retrieve the current clipboard content and its type."""
-    win32clipboard.OpenClipboard()
+    """Retrieve the current clipboard content and its type in a cross-platform way."""
     try:
-        if win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_UNICODETEXT):
-            # Handle Unicode text data
-            data = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
-            return "text", data
-        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_BITMAP):
-            # Handle image data
-            image = ImageGrab.grabclipboard()
-            return "image", image
-        elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_HDROP):
+        app = QApplication.instance()
+        if not app:
+            return "error", "QApplication not initialized"
+            
+        clipboard = app.clipboard()
+        mime_data = clipboard.mimeData()
+        
+        if mime_data.hasUrls():
             # Handle file paths
-            files = win32clipboard.GetClipboardData(win32clipboard.CF_HDROP)
-            return "files", list(files)
-        else:
-            return "unknown", None
+            files = [url.toLocalFile() for url in mime_data.urls() if url.isLocalFile()]
+            if files:
+                return "files", files
+                
+        if mime_data.hasImage():
+            # Handle image data
+            from PyQt6.QtGui import QImage
+            qimage = clipboard.image()
+            if not qimage.isNull():
+                # Convert QImage to PIL Image for consistency if needed, 
+                # or just return the QImage/Pixmap. 
+                # The rest of the app seems to expect PIL Image based on previous code.
+                import io
+                from PIL import Image
+                buffer = io.BytesIO()
+                qimage.save(buffer, "PNG")
+                image = Image.open(buffer)
+                return "image", image
+                
+        if mime_data.hasText():
+            # Handle text data
+            return "text", mime_data.text()
+            
+        return "unknown", None
+        
     except Exception as e:
         logging.error(f"Error retrieving clipboard data: {e}")
         return "error", None
-    finally:
-        win32clipboard.CloseClipboard()

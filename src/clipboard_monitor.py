@@ -1,8 +1,9 @@
 import time
 import logging
-import win32clipboard
+import sys
 from PIL import ImageGrab
 from PyQt6.QtCore import QObject, QTimer, pyqtSignal
+from PyQt6.QtWidgets import QApplication
 
 class ClipboardItem:
     """Class to represent a clipboard item with its type, content, and timestamp."""
@@ -80,36 +81,39 @@ class ClipboardMonitor(QObject):
             self.logger.info(f"New clipboard content ({data_type}): {str(current_clipboard_content)[:100]}...")
     
     def get_clipboard_data(self):
-        """Retrieve the current clipboard content and its type."""
+        """Retrieve the current clipboard content and its type in a cross-platform way."""
         try:
-            win32clipboard.OpenClipboard()
+            app = QApplication.instance()
+            if not app:
+                return "error", "QApplication not initialized"
+                
+            clipboard = app.clipboard()
+            mime_data = clipboard.mimeData()
             
-            if win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_HDROP) and self.monitor_files:
-                # Handle file paths (check this first since copied files can also have image data)
-                files = win32clipboard.GetClipboardData(win32clipboard.CF_HDROP)
-                win32clipboard.CloseClipboard()
-                return "files", list(files)
+            if mime_data.hasUrls() and self.monitor_files:
+                # Handle file paths
+                files = [url.toLocalFile() for url in mime_data.urls() if url.isLocalFile()]
+                if files:
+                    return "files", files
+                    
+            if mime_data.hasImage() and self.monitor_images:
+                # Handle image data
+                from PyQt6.QtGui import QImage
+                qimage = clipboard.image()
+                if not qimage.isNull():
+                    import io
+                    from PIL import Image
+                    buffer = io.BytesIO()
+                    qimage.save(buffer, "PNG")
+                    image = Image.open(buffer)
+                    return "image", image
+                    
+            if mime_data.hasText() and self.monitor_text:
+                # Handle text data
+                return "text", mime_data.text()
                 
-            elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_UNICODETEXT) and self.monitor_text:
-                # Handle Unicode text data
-                data = win32clipboard.GetClipboardData(win32clipboard.CF_UNICODETEXT)
-                win32clipboard.CloseClipboard()
-                return "text", data
-                
-            elif win32clipboard.IsClipboardFormatAvailable(win32clipboard.CF_BITMAP) and self.monitor_images:
-                # Handle image data (actual image content, not file paths)
-                win32clipboard.CloseClipboard()  # Close before using ImageGrab
-                image = ImageGrab.grabclipboard()
-                return "image", image
-                
-            else:
-                win32clipboard.CloseClipboard()
-                return "unknown", None
-                
+            return "unknown", None
+            
         except Exception as e:
             self.logger.error(f"Error retrieving clipboard data: {e}")
-            try:
-                win32clipboard.CloseClipboard()
-            except:
-                pass  # Already closed or not open
             return "error", None

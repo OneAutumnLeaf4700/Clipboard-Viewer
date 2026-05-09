@@ -14,6 +14,9 @@ from utils.clipboard_utils import get_clipboard_data
 from gui.preview_widget import PreviewWidget
 from utils.hotkeys import HotkeyManager
 from utils.notification_manager import NotificationManager
+from gui.components.history_item import HistoryItemWidget
+from gui.components.empty_state import EmptyStateWidget
+from PyQt6.QtWidgets import QStackedWidget
 
 # Import material theme
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -22,28 +25,26 @@ from gui.themes.material_theme import apply_material_theme_to_app, get_material_
 class ClipboardListItem(QListWidgetItem):
     """Custom list widget item to store clipboard data and its type."""
     
-    def __init__(self, data_type, content, timestamp=None):
+    def __init__(self, data_type, content, timestamp=None, is_pinned=False, db_id=None):
         super().__init__()
         self.data_type = data_type
         self.content = content
         self.timestamp = timestamp or datetime.now()
+        self.is_pinned = is_pinned
+        self.db_id = db_id
         
-        # Set display text based on data type with proper icon paths
+        # Display text is handled by HistoryItemWidget now, but keeping for compatibility
         if data_type == "text":
             display_text = content[:50] + "..." if len(content) > 50 else content
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - {display_text}")
-            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "text_icon.svg")))
         elif data_type == "image":
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - [Image]")
-            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "image_icon.svg")))
         elif data_type == "files":
             file_count = len(content)
             file_text = f"{file_count} file{'s' if file_count > 1 else ''}"
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - {file_text}")
-            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "file_icon.svg")))
         else:
             self.setText(f"{self.timestamp.strftime('%H:%M:%S')} - [Unknown format]")
-            self.setIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "icons", "unknown_icon.svg")))
 
 
 class MainWindow(QMainWindow):
@@ -157,6 +158,12 @@ class MainWindow(QMainWindow):
         self.search_layout.addWidget(self.search_type_filter)
         self.search_layout.addWidget(self.clear_filter_button)
         
+        self.history_layout.addWidget(self.history_header)
+        self.history_layout.addLayout(self.search_layout)
+        
+        # Use stacked widget for history list and empty state
+        self.history_stack = QStackedWidget()
+        
         self.history_list = QListWidget()
         self.history_list.setAlternatingRowColors(True)
         self.history_list.currentItemChanged.connect(self.on_item_selected)
@@ -166,9 +173,13 @@ class MainWindow(QMainWindow):
         self.history_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.history_list.customContextMenuRequested.connect(self.show_history_context_menu)
         
-        self.history_layout.addWidget(self.history_header)
-        self.history_layout.addLayout(self.search_layout)
-        self.history_layout.addWidget(self.history_list)
+        # Add empty state
+        self.empty_state = EmptyStateWidget()
+        
+        self.history_stack.addWidget(self.history_list)
+        self.history_stack.addWidget(self.empty_state)
+        
+        self.history_layout.addWidget(self.history_stack)
         
         # Create preview widget
         self.preview_widget = PreviewWidget()
@@ -237,6 +248,15 @@ class MainWindow(QMainWindow):
         settings_action.triggered.connect(self.show_settings)
         toolbar.addAction(settings_action)
         
+        toolbar.addSeparator()
+        
+        # Compact Mode toggle
+        self.compact_action = QAction("📱 Compact Mode", self)
+        self.compact_action.setCheckable(True)
+        self.compact_action.setToolTip("Toggle compact view mode")
+        self.compact_action.triggered.connect(self.toggle_compact_mode)
+        toolbar.addAction(self.compact_action)
+        
         # Add stretch to push items to the left
         spacer = QWidget()
         spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
@@ -247,27 +267,39 @@ class MainWindow(QMainWindow):
         branding_label.setStyleSheet("color: #6C757D; font-size: 12px; margin-right: 10px;")
         toolbar.addWidget(branding_label)
     
+    def toggle_compact_mode(self, checked):
+        """Toggle between normal and compact view modes."""
+        if checked:
+            # Store current state
+            self.normal_geometry = self.geometry()
+            self.normal_splitter_sizes = self.splitter.sizes()
+            
+            # Hide preview widget
+            self.preview_widget.hide()
+            
+            # Set compact size
+            self.setMinimumWidth(400)
+            self.resize(450, 700)
+            
+            self.status_bar.showMessage("Compact Mode enabled")
+        else:
+            # Show preview widget
+            self.preview_widget.show()
+            
+            # Restore normal size
+            self.setMinimumWidth(800)
+            if hasattr(self, 'normal_geometry'):
+                self.setGeometry(self.normal_geometry)
+            if hasattr(self, 'normal_splitter_sizes'):
+                self.splitter.setSizes(self.normal_splitter_sizes)
+                
+            self.status_bar.showMessage("Normal Mode restored")
+    
     def setup_system_tray(self):
         """Setup the system tray icon and menu."""
-        # This is a placeholder - actual implementation would need proper icons
         self.tray_icon = QSystemTrayIcon(self)
-        tray_menu = QMenu()
+        self.update_tray_menu()
         
-        show_action = QAction("Show", self)
-        show_action.triggered.connect(self.show)
-        tray_menu.addAction(show_action)
-        
-        hide_action = QAction("Hide", self)
-        hide_action.triggered.connect(self.hide)
-        tray_menu.addAction(hide_action)
-        
-        tray_menu.addSeparator()
-        
-        exit_action = QAction("Exit", self)
-        exit_action.triggered.connect(QApplication.quit)
-        tray_menu.addAction(exit_action)
-        
-        self.tray_icon.setContextMenu(tray_menu)
         self.tray_icon.activated.connect(self.tray_icon_activated)
         
         # Set system tray icon
@@ -275,6 +307,60 @@ class MainWindow(QMainWindow):
         if os.path.exists(app_icon_path):
             self.tray_icon.setIcon(QIcon(app_icon_path))
             self.tray_icon.show()
+
+    def update_tray_menu(self):
+        """Update the system tray menu with recent items."""
+        tray_menu = QMenu()
+        
+        show_action = QAction("📋 Show History", self)
+        show_action.triggered.connect(self.show)
+        tray_menu.addAction(show_action)
+        
+        hide_action = QAction("🙈 Hide", self)
+        hide_action.triggered.connect(self.hide)
+        tray_menu.addAction(hide_action)
+        
+        tray_menu.addSeparator()
+        
+        # Add recent items
+        recent_label = QAction("Recent Items:", self)
+        recent_label.setEnabled(False)
+        tray_menu.addAction(recent_label)
+        
+        items = self.history_manager.get_all_items(limit=5)
+        for item in items:
+            text = ""
+            if item.data_type == "text":
+                text = (item.content[:30] + "...") if len(item.content) > 30 else item.content
+            elif item.data_type == "image":
+                text = "[Image]"
+            else:
+                text = f"[{item.data_type}]"
+                
+            action = QAction(f"  {text}", self)
+            action.triggered.connect(lambda checked, i=item: self.copy_item_from_tray(i))
+            tray_menu.addAction(action)
+            
+        tray_menu.addSeparator()
+        
+        exit_action = QAction("❌ Exit", self)
+        exit_action.triggered.connect(QApplication.quit)
+        tray_menu.addAction(exit_action)
+        
+        self.tray_icon.setContextMenu(tray_menu)
+
+    def copy_item_from_tray(self, item):
+        """Copy an item to clipboard from the tray menu."""
+        if item.data_type == "text":
+            QApplication.clipboard().setText(item.content)
+            self.status_bar.showMessage(f"Copied from tray: {item.content[:30]}...")
+        # Add other types as needed
+        
+        self.notification_manager.show_clipboard_notification(
+            "📋 Item Copied",
+            "Item copied from tray menu",
+            "success"
+        )
     
     def tray_icon_activated(self, reason):
         """Handle tray icon activation."""
@@ -302,37 +388,122 @@ class MainWindow(QMainWindow):
         
         # Add items to history list
         for item in items:
-            # Create list item
-            list_item = ClipboardListItem(item.data_type, item.content, item.timestamp)
-            
-            # Add to history list
-            self.history_list.addItem(list_item)
-            self.clipboard_history.append(list_item)
+            self.create_history_list_item(item)
         
         # Store original items for search filtering
         self.original_clipboard_history = self.clipboard_history.copy()
         
+        # Update empty state
+        self.refresh_empty_state()
+        
         # Update status
         self.status_bar.showMessage(f"Loaded {len(items)} history items")
+        
+        # Update tray menu
+        self.update_tray_menu()
+
+    def refresh_empty_state(self):
+        """Show empty state widget if history is empty."""
+        if self.history_list.count() == 0:
+            self.history_stack.setCurrentWidget(self.empty_state)
+        else:
+            self.history_stack.setCurrentWidget(self.history_list)
+
+    def create_history_list_item(self, item, index=None, animate=False):
+        """Create a list item with a custom widget and add it to the history list."""
+        # Create list item
+        list_item = ClipboardListItem(
+            item.data_type, 
+            item.content, 
+            item.timestamp, 
+            getattr(item, 'favorite', False),
+            getattr(item, 'id', None)
+        )
+        
+        # Add to history list at specific index or at the end
+        if index is not None:
+            self.history_list.insertItem(index, list_item)
+            self.clipboard_history.insert(index, list_item)
+        else:
+            self.history_list.addItem(list_item)
+            self.clipboard_history.append(list_item)
+        
+        # Create custom widget
+        widget = HistoryItemWidget(
+            item.data_type, 
+            item.content, 
+            item.timestamp, 
+            getattr(item, 'favorite', False)
+        )
+        
+        # Connect signals
+        widget.copy_requested.connect(lambda w: self.copy_item_to_clipboard(list_item))
+        widget.delete_requested.connect(lambda w: self.delete_history_item(list_item))
+        widget.pin_requested.connect(lambda w: self.toggle_item_pin(list_item, w))
+        
+        # Set size hint for the item
+        list_item.setSizeHint(widget.sizeHint())
+        
+        # Set the widget for the list item
+        self.history_list.setItemWidget(list_item, widget)
+        
+        # Perform animation if requested
+        if animate:
+            widget.animate_fade_in()
+        
+        return list_item
+
+    def copy_item_to_clipboard(self, list_item):
+        """Copy the item's content back to the system clipboard."""
+        self.history_list.setCurrentItem(list_item)
+        self.copy_selected_to_clipboard()
+
+    def delete_history_item(self, list_item):
+        """Delete an item from history."""
+        if list_item.db_id:
+            self.history_manager.delete_item(list_item.db_id)
+        
+        row = self.history_list.row(list_item)
+        self.history_list.takeItem(row)
+        
+        if list_item in self.clipboard_history:
+            self.clipboard_history.remove(list_item)
+        if list_item in self.original_clipboard_history:
+            self.original_clipboard_history.remove(list_item)
+            
+        self.refresh_empty_state()
+        self.status_bar.showMessage("Item deleted")
+
+    def toggle_item_pin(self, list_item, widget):
+        """Toggle the pin status of an item."""
+        if list_item.db_id:
+            new_status = self.history_manager.toggle_favorite(list_item.db_id)
+            if new_status is not None:
+                list_item.is_pinned = new_status
+                widget.is_pinned = new_status
+                widget.update_pin_style()
+                self.status_bar.showMessage("Item " + ("pinned" if new_status else "unpinned"))
     
     def on_new_clipboard_content(self, item):
         """Handle new clipboard content from the clipboard monitor."""
-        # Create new history item
-        new_item = ClipboardListItem(item.data_type, item.content, item.timestamp)
+        # Create and add new history item at the top with animation
+        new_list_item = self.create_history_list_item(item, index=0, animate=True)
         
-        # Check if search is active
+        self.refresh_empty_state()
+        self.update_tray_menu()
+        
+        # Check if search is active - if not matching, hide the item
         search_text = self.search_input.text()
-        if search_text and item.data_type == "text" and search_text.lower() in str(item.content).lower():
-            # If search is active and the new item matches the search, add it to the filtered list
-            self.history_list.insertItem(0, new_item)  # Add at the top
-            self.clipboard_history.insert(0, new_item)
-        elif not search_text:
-            # If no search is active, add to the visible list
-            self.history_list.insertItem(0, new_item)  # Add at the top
-            self.clipboard_history.insert(0, new_item)
+        if search_text:
+            matches = False
+            if item.data_type == "text" and search_text.lower() in str(item.content).lower():
+                matches = True
+            
+            if not matches:
+                new_list_item.setHidden(True)
         
-        # Always add to the original list
-        self.original_clipboard_history.insert(0, new_item)
+        # Update original history list
+        self.original_clipboard_history.insert(0, new_list_item)
         
         # Update status with session statistics
         session_stats = self.notification_manager.get_session_summary()
