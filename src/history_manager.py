@@ -357,19 +357,21 @@ class HistoryManager(QObject):
             # Remove items older than auto_cleanup_days
             if self.auto_cleanup_days > 0:
                 cutoff_date = datetime.now() - timedelta(days=self.auto_cleanup_days)
-                
+
                 cursor.execute('''
                     DELETE FROM clipboard_items
                     WHERE favorite = 0 AND timestamp < ?
                 ''', (cutoff_date.isoformat(),))
-                
+
                 removed_count = cursor.rowcount
                 if removed_count > 0:
                     self.logger.info(f"Removed {removed_count} items older than {self.auto_cleanup_days} days")
-            
-            # Commit changes if we created the connection
+
+            # Always commit cleanup deletes, even when the caller supplied the
+            # connection — otherwise add_item()'s subsequent close() rolls them back.
+            conn.commit()
+
             if close_connection:
-                conn.commit()
                 conn.close()
                 
         except Exception as e:
