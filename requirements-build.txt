@@ -18,5 +18,5 @@ pynput>=1.7.6
 # Build tool
 PyInstaller>=5.0.0
 
-# Optional: For better compression
-upx-ucl>=3.96
+# Optional: install the UPX binary separately (https://upx.github.io/) for
+# smaller executables. PyInstaller skips UPX silently if the binary is absent.
