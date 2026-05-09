@@ -1,0 +1,22 @@
+# Build requirements for Clipboard Viewer
+# These are the dependencies needed to build the executable
+
+# Core GUI framework
+PyQt6>=6.0.0
+
+# Clipboard handling
+pyperclip>=1.8.2
+pywin32>=303; sys_platform == 'win32'
+
+# Image processing
+pillow>=9.0.0
+
+# Global hotkeys
+keyboard>=0.13.5
+pynput>=1.7.6
+
+# Build tool
+PyInstaller>=5.0.0
+
+# Optional: For better compression
+upx-ucl>=3.96
