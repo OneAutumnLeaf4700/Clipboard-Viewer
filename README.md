@@ -1,142 +1,146 @@
 # Clipboard Viewer
 
-A powerful Python application that monitors and maintains a comprehensive history of all clipboard content, allowing you to view, search, and restore any previously copied item with ease.
+> A lightweight Windows clipboard history manager with real-time monitoring, SQLite persistence, search, and system tray integration.
 
-## Screenshots
+[![Build](https://github.com/OneAutumnLeaf4700/Clipboard-Viewer/actions/workflows/build.yml/badge.svg)](https://github.com/OneAutumnLeaf4700/Clipboard-Viewer/actions/workflows/build.yml)
+[![Latest Release](https://img.shields.io/github/v/release/OneAutumnLeaf4700/Clipboard-Viewer)](https://github.com/OneAutumnLeaf4700/Clipboard-Viewer/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-![](docs/screenshots/empty_clipboard.png)
-![](docs/screenshots/image_copied.png)
+<!-- TODO: replace with 15-second GIF demo (record with ScreenToGif, save to docs/demo.gif) -->
+![Clipboard Viewer screenshot](docs/screenshots/empty_clipboard.png)
 
-## ✨ Features
+## Features
 
-### 🔄 Real-time Clipboard Monitoring
-- **Automatic Capture**: Monitors clipboard changes in real-time
-- **Multi-format Support**: Handles text, images, files, and custom formats
-- **Smart Detection**: Identifies content types automatically
-- **Background Operation**: Runs silently in system tray
+- **Real-time monitoring** — captures text, images, and files from the clipboard automatically
+- **Persistent history** — SQLite-backed storage with configurable size and retention limits
+- **Search & filter** — full-text search and content-type filtering (text / image / file)
+- **System tray integration** — runs quietly in the background; toggle via hotkey
+- **Themes & UI** — PyQt6 interface with dark / light / system themes and responsive layout
+- **Customizable hotkeys** — default `Ctrl+Shift+V` to toggle the viewer
+- **Toast notifications** — real-time feedback with session statistics
+- **Export** — save history to JSON for backup or external use
+- **Windows startup** — optional auto-launch on system boot
 
-### 📚 History Management
-- **Persistent Storage**: SQLite database for reliable history storage
-- **Configurable Limits**: Set maximum history size and retention periods
-- **Automatic Cleanup**: Removes old entries based on age or count
-- **Database Optimization**: Indexed queries and automatic compaction
+## Tested Platforms
 
-### 🔍 Search & Organization
-- **Advanced Search**: Find content by type and keywords
-- **Type Filtering**: Filter by text, images, or files
-- **Favorites System**: Database support for pinning items (UI coming soon)
-- **Session Statistics**: Track clipboard usage with detailed metrics
+- Windows 10 / 11 (primary target)
+- macOS / Linux are **not currently supported** — the app depends on `pywin32` and Windows-specific clipboard APIs
 
-### 🎨 User Interface
-- **Modern Design**: Clean PyQt6 interface with dark/light themes
-- **Responsive Layout**: Adapts to different screen sizes
-- **Preview Pane**: View images and formatted text directly
-- **System Tray Integration**: Minimal footprint with full functionality
-- **Toast Notifications**: Real-time feedback with statistics
+## Installation
 
-### ⚙️ Customization
-- **Hotkey Support**: Customizable keyboard shortcuts
-- **Theme Selection**: System, light, or dark themes
-- **Notification Settings**: Configure duration and display options
-- **Startup Options**: Launch with Windows startup
+### Option 1 — Prebuilt Windows executable (recommended)
+1. Go to the [Releases](https://github.com/OneAutumnLeaf4700/Clipboard-Viewer/releases) page
+2. Download the latest `ClipboardViewer.exe` (and `install.bat` if you want a Start Menu shortcut)
+3. Run `install.bat` as Administrator, or just double-click the `.exe`
 
-### 📊 Advanced Features
-- **Export Functionality**: Save clipboard history to JSON format (API available)
-- **Session Tracking**: Monitor clipboard usage patterns
-- **Responsive Design**: Adapts to different screen sizes and orientations
+### Option 2 — Run from source
+Prerequisites: **Python 3.8+** on Windows.
 
-## 🚀 Quick Start
+```bash
+git clone https://github.com/OneAutumnLeaf4700/Clipboard-Viewer.git
+cd Clipboard-Viewer
+pip install -r requirements.txt
+python src/main.py
+```
 
-### Prerequisites
-- **Python 3.8+**
-- **Windows 10+** (primary target)
-- **50MB free disk space**
+## Usage
 
-### Installation
+1. **Launch** — the app starts in the system tray and begins monitoring immediately
+2. **Open the viewer** — click the tray icon or press `Ctrl+Shift+V`
+3. **Restore an item** — double-click any history entry to copy it back to the clipboard
+4. **Search** — type in the search bar to filter entries by content
+5. **Filter by type** — use the dropdown to show only text, images, or files
+6. **Settings** — right-click the tray icon for theme, startup, and hotkey options
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd Clipboard-Viewer
-   ```
+## Privacy & Security
 
-2. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+> **Important — please read before installing.**
 
-3. **Run the application**:
-   ```bash
-   python src/main.py
-   ```
+Clipboard Viewer captures **everything** you copy: text, images, and file paths. This includes:
 
-## 📖 Usage Guide
+- Passwords from a password manager
+- Authentication tokens, API keys, and secrets
+- Private messages, emails, and documents
+- Card numbers, addresses, and other sensitive personal data
 
-### Getting Started
-1. **Launch**: Run the application - it starts monitoring automatically
-2. **Access History**: Use system tray icon or hotkey (default: `Ctrl+Shift+V`)
-3. **Copy Items**: Double-click any history item to restore it to clipboard
-4. **Search**: Use the search bar to find specific content quickly
-5. **Preview**: Select items to view detailed preview in the right panel
+**All captured data is stored unencrypted** in a local SQLite database at `data/clipboard_history.db`. There is no cloud sync, telemetry, or external transmission — but anyone with access to your user account on this machine can read the database directly.
 
-### Advanced Features
-- **Type Filtering**: Use the dropdown to filter by text, images, or files
-- **Clear History**: Remove all items or keep only favorites
-- **Settings**: Configure themes and startup options
-- **Statistics**: View session statistics in notifications and status bar
-- **Responsive Layout**: Resize window to see adaptive interface changes
+**Recommendations:**
 
-## 🏗️ Project Structure
+- **Pause the app when using a password manager.** Most (Bitwarden, 1Password, KeePassXC) auto-clear the clipboard after ~30 seconds, but this tool will still capture the secret during that window
+- Clear history regularly via the UI (*Clear History*)
+- Do not run on a shared or multi-user machine
+- Review what's in the database before sharing screenshots, screen recordings, or backups
 
+This tool is intended for personal productivity use on a single-user machine. It is **not** appropriate for environments handling regulated data (PII, PHI, PCI, classified material, etc.).
+
+## Development
+
+### Setup
+```bash
+git clone https://github.com/OneAutumnLeaf4700/Clipboard-Viewer.git
+cd Clipboard-Viewer
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-build.txt
+```
+
+### Run tests
+```bash
+pytest --cov=src --cov-report=term-missing
+```
+
+### Build a Windows executable locally
+```bash
+python build.py
+```
+
+### Project layout
 ```
 Clipboard-Viewer/
 ├── src/
-│   ├── main.py                 # Application entry point
-│   ├── clipboard_monitor.py    # Real-time clipboard monitoring
-│   ├── history_manager.py      # History storage and management
+│   ├── main.py                      # Application entry point
+│   ├── clipboard_monitor.py         # Real-time clipboard polling
+│   ├── history_manager.py           # History storage and retention
 │   ├── gui/
-│   │   ├── main_window.py      # Main application window
-│   │   ├── history_view.py     # Clipboard history display
-│   │   ├── preview_widget.py   # Content preview component
-│   │   └── settings_dialog.py  # Settings configuration
+│   │   ├── main_window.py           # Main application window
+│   │   ├── preview_widget.py        # Content preview pane
+│   │   ├── settings_dialog.py       # Settings UI
+│   │   ├── components/              # Reusable view components
+│   │   └── themes/                  # Theme assets
 │   └── utils/
-│       ├── database.py         # SQLite database operations
-│       ├── clipboard_utils.py  # Clipboard data handling
-│       ├── hotkeys.py          # Global hotkey management
-│       ├── system_tray.py      # System tray integration
-│       └── notification_manager.py # Toast notifications
-├── assets/
-│   └── icons/                  # Application icons
-├── data/                       # User data and database
-├── requirements.txt            # Python dependencies
-└── README.md
+│       ├── database.py              # SQLite operations
+│       ├── clipboard_utils.py       # Clipboard data adapters
+│       ├── hotkeys.py               # Global hotkey registration
+│       ├── system_tray.py           # System tray integration
+│       └── notification_manager.py  # Toast notifications
+├── tests/                           # pytest suite
+├── docs/                            # Screenshots, design notes
+├── .github/workflows/               # CI: build, test, release
+└── build.py                         # PyInstaller build script
 ```
 
-## ⚙️ Configuration
+## Troubleshooting
 
-### Settings File
-Settings are stored in `data/config.json` and Windows Registry:
+**App won't start / system tray icon missing.** Confirm you're on Windows 10 or later. Check `data/clipboard_viewer.log` for errors.
 
-```json
-{
-  "appearance": {
-    "theme": "System"
-  },
-  "general": {
-    "start_minimized": false,
-    "max_history_items": 1000,
-    "auto_cleanup_days": 30
-  }
-}
-```
+**Hotkey doesn't work.** Another app may have grabbed `Ctrl+Shift+V` — change the hotkey in Settings or close the conflicting app. The `keyboard` library may also require elevated privileges; try running as Administrator.
 
-### Available Settings
-- **Theme**: System, Light, or Dark theme
-- **Start with Windows**: Automatically launch on system startup
-- **History Limits**: Maximum items and retention period (configured in code)
-- **Hotkeys**: Toggle window visibility (default: `Ctrl+Shift+V`)
+**Clipboard captures aren't appearing.** Some apps (Office, browsers in incognito mode, password managers) write to the clipboard with formats that may not be readable. Check the log for unhandled-format warnings.
 
-### Database
-- **Location**: `data/clipboard_history.db`
-- **Optimization**: Automatic indexing and compaction
-- **Backup**: Manual export available through API
+**Database errors on startup / corrupted DB.** Close the app, delete `data/clipboard_history.db`, restart. (You'll lose history.)
+
+**Want to start fresh?** Delete the `data/` folder. The app will recreate it on next launch.
+
+## Contributing
+
+Issues and pull requests are welcome. Please:
+
+- Open an issue first to discuss any non-trivial change
+- Run `pytest` and ensure tests pass before submitting
+- Follow PEP 8
+
+## License
+
+[MIT](LICENSE) © 2026 Rayyan
